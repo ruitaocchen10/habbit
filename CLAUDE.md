@@ -35,6 +35,18 @@ xcodebuild -project habbit.xcodeproj -scheme habbit -destination 'platform=iOS S
 - **Target**: iOS 26.2, iPhone and iPad (universal)
 - **Bundle ID**: com.ruitaochen.habbit
 - **Development Team**: NS8CC9Z25V
+- **Backend**: Supabase (PostgreSQL database, Auth, Realtime, Storage)
+
+**Backend & Data Layer**:
+
+- Use Supabase Swift SDK (`supabase-swift`) for all backend interactions
+- Auth: Supabase Auth for user sign-up/sign-in (email or OAuth)
+- Database: PostgreSQL via Supabase; access through the Supabase client
+- Realtime: Supabase Realtime for live updates (e.g., friend activity feeds)
+- Storage: Supabase Storage for user-uploaded photos in social posts
+- Keep Supabase client initialization in a shared service (e.g., `SupabaseService.swift`)
+- Use async/await for all Supabase calls; never block the main thread
+- Store credentials (URL and anon key) in a config file excluded from version control
 
 **Key Features Enabled**:
 
