@@ -1,2 +1,5 @@
 #claude agent files
 /.claude
+
+# Supabase credentials — never commit this file
+habbit/Config.swift
