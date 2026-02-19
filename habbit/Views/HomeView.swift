@@ -11,6 +11,8 @@ import SwiftUI
 struct HomeView: View {
     @Environment(AuthManager.self) private var authManager
     @State private var calendarViewModel = CalendarViewModel()
+    @State private var habitViewModel = HabitViewModel()
+    @State private var showingTemplateLibrary = false
 
     // MARK: - Design Tokens
 
@@ -55,6 +57,20 @@ struct HomeView: View {
                 // Week calendar component
                 WeekCalendarView(viewModel: calendarViewModel)
 
+                // Daily habit list component
+                DailyHabitView(
+                    viewModel: habitViewModel,
+                    selectedDate: calendarViewModel.selectedDate
+                )
+                .task(id: calendarViewModel.selectedDate) {
+                    habitViewModel.onToggleComplete = {
+                        Task {
+                            await calendarViewModel.loadWeekCompletionCounts()
+                        }
+                    }
+                    await habitViewModel.loadData(for: calendarViewModel.selectedDate)
+                }
+
                 Spacer()
             }
             .background(.theme.background)
@@ -86,10 +102,22 @@ struct HomeView: View {
                 }
 
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Sign Out") {
-                        Task { await authManager.signOut() }
+                    HStack(spacing: .spacing.small) {
+                        Button {
+                            showingTemplateLibrary = true
+                        } label: {
+                            Image(systemName: "checklist")
+                                .foregroundStyle(.theme.primary)
+                        }
+
+                        Button("Sign Out") {
+                            Task { await authManager.signOut() }
+                        }
                     }
                 }
+            }
+            .sheet(isPresented: $showingTemplateLibrary) {
+                TemplateLibraryView()
             }
         }
     }

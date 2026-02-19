@@ -3,3 +3,7 @@
 
 # Supabase credentials — never commit this file
 habbit/Config.swift
+
+# sql migrations
+habbit/Migrations
+

@@ -12,64 +12,64 @@ extension Color {
         // MARK: - Primary Palette (Spring Green - Growth & Renewal)
 
         /// Primary brand color - fresh spring green, like new grass and growth
-        static let primary = Color(hex: "#4CAF50")
+        static let primary = Color(hexString: "#4CAF50")
 
         /// Lighter shade of primary - light sage green for hover states
-        static let primaryLight = Color(hex: "#81C784")
+        static let primaryLight = Color(hexString: "#81C784")
 
         /// Darker shade of primary - deep forest green for pressed states
-        static let primaryDark = Color(hex: "#388E3C")
+        static let primaryDark = Color(hexString: "#388E3C")
 
         // MARK: - Semantic Colors
 
         /// Success color - vibrant grass green for completed habits
-        static let success = Color(hex: "#66BB6A")
+        static let success = Color(hexString: "#66BB6A")
 
         /// Warning color - warm golden yellow, like spring sunshine
-        static let warning = Color(hex: "#FFC107")
+        static let warning = Color(hexString: "#FFC107")
 
         /// Error color - soft coral red, gentler than harsh red
-        static let error = Color(hex: "#EF5350")
+        static let error = Color(hexString: "#EF5350")
 
         /// Info color - spring sky blue
-        static let info = Color(hex: "#42A5F5")
+        static let info = Color(hexString: "#42A5F5")
 
         // MARK: - Neutral Palette (Warm Spring Tones)
 
         /// Primary background color - warm cream, soft and inviting
-        static let background = Color(hex: "#FFFEF9")
+        static let background = Color(hexString: "#FFFEF9")
 
         /// Secondary background - very light sage with subtle green tint
-        static let backgroundSecondary = Color(hex: "#F5F9F5")
+        static let backgroundSecondary = Color(hexString: "#F5F9F5")
 
         /// Tertiary background - warm beige for subtle dividers
-        static let backgroundTertiary = Color(hex: "#EBE8E0")
+        static let backgroundTertiary = Color(hexString: "#EBE8E0")
 
         /// Primary text color - deep olive, warmer than pure black
-        static let textPrimary = Color(hex: "#2C3E2C")
+        static let textPrimary = Color(hexString: "#2C3E2C")
 
         /// Secondary text - soft gray-green for captions and metadata
-        static let textSecondary = Color(hex: "#6B7B6B")
+        static let textSecondary = Color(hexString: "#6B7B6B")
 
         /// Tertiary text - light sage gray for disabled states
-        static let textTertiary = Color(hex: "#B0BCB0")
+        static let textTertiary = Color(hexString: "#B0BCB0")
 
         // MARK: - Heatmap Gradient (Spring Green Progression)
 
         /// No completions (light neutral)
-        static let heatmap0 = Color(hex: "#EBE8E0")
+        static let heatmap0 = Color(hexString: "#EBE8E0")
 
         /// 1-2 completions (pale spring green)
-        static let heatmap1 = Color(hex: "#C8E6C9")
+        static let heatmap1 = Color(hexString: "#C8E6C9")
 
         /// 3-4 completions (light grass green)
-        static let heatmap2 = Color(hex: "#81C784")
+        static let heatmap2 = Color(hexString: "#81C784")
 
         /// 5-6 completions (vibrant spring green)
-        static let heatmap3 = Color(hex: "#4CAF50")
+        static let heatmap3 = Color(hexString: "#4CAF50")
 
         /// 7+ completions (deep forest green)
-        static let heatmap4 = Color(hex: "#2E7D32")
+        static let heatmap4 = Color(hexString: "#2E7D32")
 
         /// Returns heatmap color based on completion count
         static func heatmapColor(for count: Int) -> Color {
@@ -90,16 +90,16 @@ extension Color {
         // MARK: - Chart Colors (Spring Palette)
 
         /// Primary data series - spring green
-        static let chart1 = Color(hex: "#4CAF50")
+        static let chart1 = Color(hexString: "#4CAF50")
 
         /// Secondary data series - cherry blossom pink
-        static let chart2 = Color(hex: "#F48FB1")
+        static let chart2 = Color(hexString: "#F48FB1")
 
         /// Tertiary data series - spring sky blue
-        static let chart3 = Color(hex: "#42A5F5")
+        static let chart3 = Color(hexString: "#42A5F5")
 
         /// Quaternary data series - soft lavender
-        static let chart4 = Color(hex: "#9575CD")
+        static let chart4 = Color(hexString: "#9575CD")
     }
 }
 
@@ -119,8 +119,8 @@ extension ShapeStyle where Self == Color {
 
 extension Color {
     /// Initialize a Color from a hex string (supports #RGB, #RRGGBB, #RRGGBBAA)
-    init(hex: String) {
-        let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+    init(hexString: String) {
+        let hex = hexString.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
         var int: UInt64 = 0
         Scanner(string: hex).scanHexInt64(&int)
 
