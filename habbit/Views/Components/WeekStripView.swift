@@ -2,6 +2,8 @@
 //  WeekStripView.swift
 //  habbit
 //
+//  Week navigation strip component - uses theme tokens from design system
+//
 
 import SwiftUI
 
@@ -10,23 +12,32 @@ struct WeekStripView: View {
 
     @State private var dragOffset: CGFloat = 0
 
+    // MARK: - Design Tokens
+
+    private enum Constants {
+        static let dragMultiplier: CGFloat = 0.3
+        static let swipeThreshold: CGFloat = 50
+        static let animationDuration: CGFloat = 0.2
+        static let minimumDragDistance: CGFloat = 20
+    }
+
     // MARK: - Body
 
     var body: some View {
-        HStack(spacing: 8) {
-            // Left arrow button
-            Button(action: {
-                viewModel.goToPreviousWeek()
-            }) {
-                Image(systemName: "chevron.left")
-                    .font(.title3)
-                    .foregroundStyle(.secondary)
-                    .frame(width: 32, height: 32)
+        VStack(spacing: .spacing.xxSmall) {
+            // Day names row (M, T, W, etc.)
+            HStack(spacing: 0) {
+                ForEach(viewModel.visibleWeek, id: \.self) { date in
+                    Text(dayName(for: date))
+                        .font(.theme.caption)
+                        .fontWeight(.medium)
+                        .foregroundStyle(.theme.textSecondary)
+                        .frame(maxWidth: .infinity)
+                }
             }
-            .buttonStyle(.plain)
 
-            // Week strip with 7 day cells
-            HStack(spacing: 4) {
+            // Day numbers row
+            HStack(spacing: .spacing.xxSmall) {
                 ForEach(viewModel.visibleWeek, id: \.self) { date in
                     DayCell(
                         date: date,
@@ -41,41 +52,35 @@ struct WeekStripView: View {
             }
             .offset(x: dragOffset)
             .gesture(
-                DragGesture(minimumDistance: 20)
+                DragGesture(minimumDistance: Constants.minimumDragDistance)
                     .onChanged { gesture in
-                        dragOffset = gesture.translation.width * 0.3
+                        dragOffset = gesture.translation.width * Constants.dragMultiplier
                     }
                     .onEnded { gesture in
-                        let threshold: CGFloat = 50
-                        if gesture.translation.width < -threshold {
+                        if gesture.translation.width < -Constants.swipeThreshold {
                             // Swipe left -> next week
                             viewModel.goToNextWeek()
-                        } else if gesture.translation.width > threshold {
+                        } else if gesture.translation.width > Constants.swipeThreshold {
                             // Swipe right -> previous week
                             viewModel.goToPreviousWeek()
                         }
-                        withAnimation(.easeInOut(duration: 0.2)) {
+                        withAnimation(.easeInOut(duration: Constants.animationDuration)) {
                             dragOffset = 0
                         }
                     }
             )
             .animation(.easeInOut, value: viewModel.weekOffset)
-
-            // Right arrow button
-            Button(action: {
-                viewModel.goToNextWeek()
-            }) {
-                Image(systemName: "chevron.right")
-                    .font(.title3)
-                    .foregroundStyle(.secondary)
-                    .frame(width: 32, height: 32)
-            }
-            .buttonStyle(.plain)
         }
-        .padding(.vertical, 8)
+        .padding(.spacing.xSmall)
     }
 
     // MARK: - Helper Methods
+
+    private func dayName(for date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEEE" // Single letter day name
+        return formatter.string(from: date)
+    }
 
     private func isSelected(_ date: Date) -> Bool {
         Calendar.current.isDate(date, inSameDayAs: viewModel.selectedDate)

@@ -2,6 +2,8 @@
 //  WeekCalendarView.swift
 //  habbit
 //
+//  Week calendar component - uses theme tokens from design system
+//
 
 import SwiftUI
 
@@ -19,19 +21,10 @@ struct WeekCalendarView: View {
     // MARK: - Body
 
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: .spacing.small) {
             // Week strip with navigation
             WeekStripView(viewModel: viewModel)
-
-            // Selected date label
-            Text(selectedDateLabel)
-                .font(.subheadline)
-                .fontWeight(.medium)
-                .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal)
         }
-        .padding(.top, 8)
     }
 }
 

@@ -4,6 +4,8 @@
 //
 //  Created by Ruitao Chen on 2/16/26.
 //
+//  Root view - uses theme tokens from design system
+//
 
 import SwiftUI
 
@@ -13,6 +15,7 @@ struct ContentView: View {
     var body: some View {
         if authManager.isLoading {
             ProgressView()
+                .tint(.theme.primary)
         } else if authManager.isAuthenticated {
             HomeView()
         } else {

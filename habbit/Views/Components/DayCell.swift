@@ -2,6 +2,8 @@
 //  DayCell.swift
 //  habbit
 //
+//  Calendar day cell component - uses theme tokens from design system
+//
 
 import SwiftUI
 
@@ -12,13 +14,16 @@ struct DayCell: View {
     let completionCount: Int
     let onTap: () -> Void
 
-    // MARK: - Computed Properties
+    // MARK: - Design Tokens
 
-    private var dayName: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "EEE"
-        return formatter.string(from: date)
+    private enum Constants {
+        static let cellHeight: CGFloat = 48
+        static let circleSize: CGFloat = 40
+        static let dotSize: CGFloat = 6
+        static let animationDuration: CGFloat = 0.2
     }
+
+    // MARK: - Computed Properties
 
     private var dayNumber: String {
         let formatter = DateFormatter()
@@ -30,42 +35,36 @@ struct DayCell: View {
 
     var body: some View {
         Button(action: onTap) {
-            VStack(spacing: 4) {
-                Text(dayName)
-                    .font(.caption)
-                    .fontWeight(.medium)
-                    .foregroundStyle(textColor)
+            VStack(spacing: .spacing.xxSmall) {
+                // Number with circular background
+                ZStack {
+                    Circle()
+                        .fill(backgroundColor)
+                        .frame(width: Constants.circleSize, height: Constants.circleSize)
 
-                Text(dayNumber)
-                    .font(.body)
-                    .fontWeight(isToday && !isSelected ? .bold : .regular)
-                    .foregroundStyle(numberColor)
+                    Text(dayNumber)
+                        .font(.theme.body)
+                        .fontWeight(isToday && !isSelected ? .bold : .semibold)
+                        .foregroundStyle(numberColor)
+                }
 
                 // Completion dot indicator
                 Circle()
                     .fill(dotColor)
-                    .frame(width: 6, height: 6)
+                    .frame(width: Constants.dotSize, height: Constants.dotSize)
                     .opacity(completionCount > 0 ? 1 : 0)
             }
-            .frame(width: 44, height: 64)
-            .background(backgroundColor)
-            .clipShape(Capsule())
+            .frame(maxWidth: .infinity)
+            .frame(height: Constants.cellHeight)
         }
         .buttonStyle(.plain)
-        .animation(.easeInOut(duration: 0.2), value: isSelected)
+        .animation(.easeInOut(duration: Constants.animationDuration), value: isSelected)
     }
 
     // MARK: - Styling
 
     private var backgroundColor: Color {
-        isSelected ? Color.accentColor : Color.clear
-    }
-
-    private var textColor: Color {
-        if isSelected {
-            return .white
-        }
-        return .secondary
+        isSelected ? .theme.primary : .clear
     }
 
     private var numberColor: Color {
@@ -73,13 +72,13 @@ struct DayCell: View {
             return .white
         }
         if isToday {
-            return .accentColor
+            return .theme.primary
         }
-        return .primary
+        return .theme.textPrimary
     }
 
     private var dotColor: Color {
-        isSelected ? .white : .accentColor
+        isSelected ? .white : .theme.primary
     }
 }
 

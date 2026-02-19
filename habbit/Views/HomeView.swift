@@ -2,6 +2,8 @@
 //  HomeView.swift
 //  habbit
 //
+//  Main home screen - uses theme tokens from design system
+//
 
 import Supabase
 import SwiftUI
@@ -9,6 +11,14 @@ import SwiftUI
 struct HomeView: View {
     @Environment(AuthManager.self) private var authManager
     @State private var calendarViewModel = CalendarViewModel()
+
+    // MARK: - Design Tokens
+
+    private enum Constants {
+        static let avatarSize: CGFloat = 32
+    }
+
+    // MARK: - Computed Properties
 
     private var displayName: String {
         if case let .string(name) = authManager.session?.user.userMetadata["full_name"] {
@@ -24,17 +34,20 @@ struct HomeView: View {
         return nil
     }
 
+    // MARK: - Body
+
     var body: some View {
         NavigationStack {
-            VStack(spacing: 16) {
-                VStack(alignment: .leading, spacing: 2) {
+            VStack(spacing: .spacing.medium) {
+                VStack(alignment: .leading, spacing: .spacing.xxSmall) {
                     Text("Hello")
-                        .font(.title3)
+                        .font(.theme.title3)
                         .fontWeight(.regular)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.theme.textSecondary)
                     Text(displayName)
-                        .font(.title)
+                        .font(.theme.title)
                         .fontWeight(.bold)
+                        .foregroundStyle(Color.theme.textPrimary)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal)
@@ -44,6 +57,7 @@ struct HomeView: View {
 
                 Spacer()
             }
+            .background(.theme.background)
             .task {
                 await calendarViewModel.loadWeekCompletionCounts()
             }
@@ -58,13 +72,15 @@ struct HomeView: View {
                             } placeholder: {
                                 Image(systemName: "person.circle.fill")
                                     .resizable()
+                                    .foregroundStyle(Color.theme.textSecondary)
                             }
-                            .frame(width: 32, height: 32)
+                            .frame(width: Constants.avatarSize, height: Constants.avatarSize)
                             .clipShape(Circle())
                         } else {
                             Image(systemName: "person.circle.fill")
                                 .resizable()
-                                .frame(width: 32, height: 32)
+                                .foregroundStyle(Color.theme.textSecondary)
+                                .frame(width: Constants.avatarSize, height: Constants.avatarSize)
                         }
                     }
                 }

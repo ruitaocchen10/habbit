@@ -2,6 +2,8 @@
 //  LoginView.swift
 //  habbit
 //
+//  Authentication screen - uses theme tokens from design system
+//
 
 import Supabase
 import SwiftUI
@@ -9,29 +11,38 @@ import SwiftUI
 struct LoginView: View {
     @Environment(AuthManager.self) private var authManager
 
+    // MARK: - Design Tokens
+
+    private enum Constants {
+        static let brandIconSize: CGFloat = 72
+    }
+
+    // MARK: - Body
+
     var body: some View {
-        VStack(spacing: 32) {
+        VStack(spacing: .spacing.xLarge) {
             Spacer()
 
             // App branding
-            VStack(spacing: 12) {
+            VStack(spacing: .spacing.small) {
                 Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 72))
-                    .foregroundStyle(.tint)
+                    .font(.system(size: Constants.brandIconSize))
+                    .foregroundStyle(Color.theme.primary)
 
                 Text("Habbit")
-                    .font(.largeTitle)
+                    .font(.theme.largeTitle)
                     .fontWeight(.bold)
+                    .foregroundStyle(Color.theme.textPrimary)
 
                 Text("Build habits together")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .font(.theme.subheadline)
+                    .foregroundStyle(Color.theme.textSecondary)
             }
 
             Spacer()
 
             // OAuth sign-in buttons
-            VStack(spacing: 12) {
+            VStack(spacing: .spacing.small) {
                 OAuthButton(label: "Continue with Google", systemImage: "globe") {
                     await authManager.signIn(provider: .google)
                 }
@@ -40,19 +51,20 @@ struct LoginView: View {
                     await authManager.signIn(provider: .apple)
                 }
             }
-            .padding(.horizontal, 24)
+            .padding(.horizontal, .spacing.large)
 
             if let error = authManager.errorMessage {
                 Text(error)
-                    .font(.footnote)
-                    .foregroundStyle(.red)
+                    .font(.theme.footnote)
+                    .foregroundStyle(Color.theme.error)
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, 24)
+                    .padding(.horizontal, .spacing.large)
             }
 
             Spacer()
-                .frame(height: 32)
+                .frame(height: .spacing.xLarge)
         }
+        .background(.theme.background)
     }
 }
 
@@ -67,14 +79,17 @@ private struct OAuthButton: View {
         Button {
             Task { await action() }
         } label: {
-            HStack {
+            HStack(spacing: .spacing.xSmall) {
                 Image(systemName: systemImage)
+                    .font(.theme.body)
                 Text(label)
-                    .fontWeight(.semibold)
+                    .font(.theme.button)
             }
+            .foregroundStyle(Color.theme.textPrimary)
             .frame(maxWidth: .infinity)
-            .padding()
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 12))
+            .padding(.vertical, .spacing.small)
+            .padding(.horizontal, .spacing.medium)
+            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: .radius.medium))
         }
         .buttonStyle(.plain)
     }
