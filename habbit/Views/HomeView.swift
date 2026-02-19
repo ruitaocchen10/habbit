@@ -8,6 +8,7 @@ import SwiftUI
 
 struct HomeView: View {
     @Environment(AuthManager.self) private var authManager
+    @State private var calendarViewModel = CalendarViewModel()
 
     private var displayName: String {
         if case let .string(name) = authManager.session?.user.userMetadata["full_name"] {
@@ -38,16 +39,13 @@ struct HomeView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal)
 
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 64))
-                    .foregroundStyle(.tint)
-
-                Text("Welcome to Habbit")
-                    .font(.title2)
-                    .fontWeight(.semibold)
+                // Week calendar component
+                WeekCalendarView(viewModel: calendarViewModel)
 
                 Spacer()
-                
+            }
+            .task {
+                await calendarViewModel.loadWeekCompletionCounts()
             }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
