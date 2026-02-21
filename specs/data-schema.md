@@ -65,7 +65,7 @@ Records a user marking a habit as done on a specific calendar date. Deletions re
 | `id`             | `uuid`        | PK DEFAULT `gen_random_uuid()`                  |                                  |
 | `user_id`        | `uuid`        | NOT NULL, REFERENCES `profiles.id`              |                                  |
 | `template_id`    | `uuid`        | NOT NULL, REFERENCES `habit_templates.id`       |                                  |
-| `completed_date` | `date`        | NOT NULL                                        | Local calendar date              |
+| `completed_date` | `timestamptz` | NOT NULL                                        | Calendar date (stored with time) |
 | `created_at`     | `timestamptz` | DEFAULT `now()`                                 |                                  |
 |                  |               | UNIQUE `(user_id, template_id, completed_date)` | Prevents duplicate completions   |
 

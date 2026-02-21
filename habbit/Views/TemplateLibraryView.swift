@@ -14,55 +14,61 @@ struct TemplateLibraryView: View {
     @State private var selectedTemplate: HabitTemplate?
     @State private var showingDeleteAlert = false
     @State private var templateToDelete: HabitTemplate?
+    @Binding var selectedTab: Int
 
     // MARK: - Body
 
     var body: some View {
         NavigationStack {
-            Group {
-                if viewModel.isLoading {
-                    loadingView
-                } else if viewModel.templates.isEmpty {
-                    emptyStateView
-                } else {
-                    templateList
-                }
-            }
-            .navigationTitle("Habit Templates")
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        showingCreateSheet = true
-                    } label: {
-                        Image(systemName: "plus.circle.fill")
-                            .foregroundStyle(.theme.primary)
+            VStack(spacing: 0) {
+                Group {
+                    if viewModel.isLoading {
+                        loadingView
+                    } else if viewModel.templates.isEmpty {
+                        emptyStateView
+                    } else {
+                        templateList
                     }
                 }
-            }
-            .sheet(isPresented: $showingCreateSheet) {
-                TemplateFormView(viewModel: viewModel, template: nil)
-            }
-            .sheet(isPresented: $showingEditSheet) {
-                if let template = selectedTemplate {
-                    TemplateFormView(viewModel: viewModel, template: template)
-                }
-            }
-            .alert("Delete Template", isPresented: $showingDeleteAlert, presenting: templateToDelete) { template in
-                Button("Cancel", role: .cancel) {}
-                Button("Delete", role: .destructive) {
-                    Task {
-                        await viewModel.deleteTemplate(template)
+                .navigationTitle("Habit Templates")
+                .navigationBarTitleDisplayMode(.large)
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            showingCreateSheet = true
+                        } label: {
+                            Image(systemName: "plus.circle.fill")
+                                .foregroundStyle(.theme.primary)
+                        }
                     }
                 }
-            } message: { template in
-                Text("Are you sure you want to delete '\(template.name)'? This will also delete all completion history.")
-            }
-            .task {
-                await viewModel.loadTemplates()
-            }
-            .refreshable {
-                await viewModel.loadTemplates()
+                .sheet(isPresented: $showingCreateSheet) {
+                    TemplateFormView(viewModel: viewModel, template: nil)
+                }
+                .sheet(isPresented: $showingEditSheet) {
+                    if let template = selectedTemplate {
+                        TemplateFormView(viewModel: viewModel, template: template)
+                    }
+                }
+                .alert("Delete Template", isPresented: $showingDeleteAlert, presenting: templateToDelete) { template in
+                    Button("Cancel", role: .cancel) {}
+                    Button("Delete", role: .destructive) {
+                        Task {
+                            await viewModel.deleteTemplate(template)
+                        }
+                    }
+                } message: { template in
+                    Text("Are you sure you want to delete '\(template.name)'? This will also delete all completion history.")
+                }
+                .task {
+                    await viewModel.loadTemplates()
+                }
+                .refreshable {
+                    await viewModel.loadTemplates()
+                }
+
+                // Tab Bar
+                CustomTabBar(selectedTab: $selectedTab)
             }
         }
     }
@@ -179,5 +185,5 @@ struct TemplateLibraryView: View {
 // MARK: - Preview
 
 #Preview {
-    TemplateLibraryView()
+    TemplateLibraryView(selectedTab: .constant(1))
 }

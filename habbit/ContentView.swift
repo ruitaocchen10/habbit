@@ -17,7 +17,7 @@ struct ContentView: View {
             ProgressView()
                 .tint(.theme.primary)
         } else if authManager.isAuthenticated {
-            HomeView()
+            MainTabView()
         } else {
             LoginView()
         }
