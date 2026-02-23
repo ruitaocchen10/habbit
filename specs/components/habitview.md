@@ -32,19 +32,19 @@ HomeView
 
 ```
 +---------------------------------------------+
-|  o  Morning Run                              |  +
-|  x  Meditate                                 |  | DailyHabitView
-|  o  Read 20 min                              |  +
+|  Morning Run                            [o]  |  +
+|  Meditate                               [x]  |  | DailyHabitView
+|  Read 20 min                            [o]  |  +
 |                                              |
 |  (No habits for this day)                    |  <- Empty state
 +---------------------------------------------+
 ```
 
 - A scrollable list of `HabitRowView` items, one per active habit template for the selected date.
-- Each row contains:
-  - Checkbox (circle toggle) — filled when completed, outline when not.
-  - Habit icon (SF Symbol, from `habit_templates.icon`), tinted with `habit_templates.color`.
-  - Habit name.
+- Each row is a white card with shadow containing:
+  - Habit name (left-aligned, `body` style).
+  - Completion checkbox (right-aligned, 24pt SF Symbol) — `checkmark.circle.fill` when completed, `circle` when not.
+- **Note**: Habit icon (`habit_templates.icon`) and color are stored on the template but are not currently rendered in `HabitRowView`. This is a planned enhancement.
 - A `ProgressView` is shown while data is loading.
 - An empty-state message is shown when there are no active habits for the date.
 
@@ -109,12 +109,13 @@ DailyHabitView (@Observable HabitViewModel)
 
 An `@Observable` class created as `@State` in `HomeView` and passed to `DailyHabitView`. Concerns: fetching and mutating habits for a specific date only.
 
-| Property             | Type              | Purpose                                      |
-| -------------------- | ----------------- | -------------------------------------------- |
-| `activeTemplates`    | `[HabitTemplate]` | Active habit templates for the selected date |
-| `completionsForDate` | `Set<UUID>`       | `template_id`s completed on the current date |
-| `isLoading`          | `Bool`            | `true` while fetching data                   |
-| `errorMessage`       | `String?`         | Non-nil when a fetch or toggle fails         |
+| Property             | Type                | Purpose                                                                         |
+| -------------------- | ------------------- | ------------------------------------------------------------------------------- |
+| `activeTemplates`    | `[HabitTemplate]`   | Active habit templates for the selected date                                    |
+| `completionsForDate` | `Set<UUID>`         | `template_id`s completed on the current date                                    |
+| `isLoading`          | `Bool`              | `true` while fetching data                                                      |
+| `errorMessage`       | `String?`           | Non-nil when a fetch or toggle fails                                             |
+| `onToggleComplete`   | `(() -> Void)?`     | Optional callback invoked after a successful toggle; used by `HomeView` to refresh week completion counts in `CalendarViewModel` |
 
 | Method                                                         | Purpose                                                                                   |
 | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
@@ -136,15 +137,26 @@ Root view for the habit list. Takes `HabitViewModel` directly (passed from `Home
 
 ### `HabitRowView`
 
-A single row in the habit list.
+A single row in the habit list. Implemented as a white card with shadow.
 
-| Element         | Notes                                                                                                             |
-| --------------- | ----------------------------------------------------------------------------------------------------------------- |
-| Checkbox button | `circle` (unchecked) / `checkmark.circle.fill` (checked) SF Symbol; disabled when `selectedDate` is in the future |
-| Habit icon      | SF Symbol from `habit_templates.icon`; tinted with `habit_templates.color`                                        |
-| Habit name      | `Text(template.name)`                                                                                             |
+| Element         | Notes                                                                                                               |
+| --------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Habit name      | `Text(template.name)`, left-aligned, `body` style, `textPrimary` color                                             |
+| Checkbox button | `circle` (unchecked) / `checkmark.circle.fill` (checked), 24pt; right-aligned; disabled when `isFutureDate == true` |
 
-Tapping the checkbox calls `habitViewModel.toggleCompletion(for: template, on: selectedDate)`.
+**Note**: Habit icon and color fields are not currently rendered in `HabitRowView`.
+
+**Constants**:
+
+| Constant | Value | Purpose |
+| -------- | ----- | ------- |
+| `iconSize` | 24pt | Icon SF Symbol size |
+| `checkboxSize` | 24pt | Checkbox SF Symbol size |
+| `rowHeight` | 64pt | Row card height |
+| `scaleAnimationAmount` | 1.2 | Checkbox scale peak on tap |
+| `animationDuration` | 0.15s | Checkbox scale animation duration |
+
+Tapping the checkbox calls `habitViewModel.toggleCompletion(for: template, on: selectedDate)` and triggers a brief scale animation (1.0 → 1.2 → 1.0). Row is 50% opacity and non-interactive when `isFutureDate == true`.
 
 ---
 

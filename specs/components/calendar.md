@@ -32,21 +32,19 @@ HomeView
 
 ```
 +---------------------------------------------+
-|  < Mon  Tue  Wed  Thu  Fri  Sat  Sun  >     |  <- Week strip with nav arrows
-|         [*]                                  |    Selected day highlighted
-|  Tuesday, Feb 18                             |    Selected date label
+|  M    T    W    T    F    S    S            |  <- Week strip (single-letter day names)
+|       [*]                                   |    Selected day highlighted
 +---------------------------------------------+
 ```
 
 - Displays 7 day cells (Mon-Sun) for the current week offset.
 - Each cell shows:
-  - Abbreviated day name (Mon, Tue, ...)
-  - Day number (1-31)
-  - A small filled dot indicator if the day has any completions
-- The selected day is highlighted (filled background, contrasting text).
-- Today's date is additionally distinguished (e.g. accent color ring or bold day number) even when not selected.
-- Left (`<`) and right (`>`) arrow buttons flank the strip to navigate weeks.
-- A selected date label sits below the strip, formatted as `"EEEE, MMM d"` (e.g. "Tuesday, Feb 18").
+  - Single-letter day name (M, T, W, T, F, S, S) using `EEEEE` date format
+  - Day number (1-31) inside a 40pt circle
+  - A small filled dot indicator below the circle if the day has any completions
+- The selected day is highlighted (filled `primary` circle, white text).
+- Today's date is additionally distinguished with a lighter primary green filled circle and white bold number, even when not selected.
+- Navigation between weeks is via swipe gesture (left = next week, right = previous week). No visible arrow buttons.
 
 ---
 
@@ -55,10 +53,17 @@ HomeView
 | Interaction               | Result                                                                        |
 | ------------------------- | ----------------------------------------------------------------------------- |
 | Tap a day cell            | Selects that day; `DailyHabitView` reacts and reloads habits for the new date |
-| Tap `<` arrow             | Navigates one week backward; keeps same weekday selected                      |
-| Tap `>` arrow             | Navigates one week forward; keeps same weekday selected                       |
-| Swipe left on week strip  | Navigates one week forward                                                    |
-| Swipe right on week strip | Navigates one week backward                                                   |
+| Swipe left on week strip  | Navigates one week forward (with drag offset visual feedback)                 |
+| Swipe right on week strip | Navigates one week backward (with drag offset visual feedback)                |
+
+**Swipe gesture constants** (in `WeekStripView`):
+
+| Constant | Value | Purpose |
+| -------- | ----- | ------- |
+| `swipeThreshold` | 50pt | Minimum swipe distance to trigger week navigation |
+| `minimumDragDistance` | 20pt | Minimum drag before gesture is recognized |
+| `dragMultiplier` | 0.3 | Resistance factor applied to drag offset for visual feedback |
+| `animationDuration` | 0.2s | Duration of transition animation |
 
 ---
 
@@ -130,10 +135,12 @@ Root view for the calendar strip. Takes `CalendarViewModel` directly (passed fro
 
 ### `WeekStripView`
 
-A horizontal `HStack` of 7 `DayCell` views flanked by arrow buttons.
+A vertical stack containing a row of single-letter day names and a row of 7 `DayCell` views. No arrow buttons — week navigation is swipe-only.
 
-- Attaches a `DragGesture` to detect left/right swipe, calling `goToNextWeek()` / `goToPreviousWeek()`.
-- Uses `.animation(.easeInOut)` when `weekOffset` changes to slide the strip.
+- Attaches a `DragGesture` to detect left/right swipe, calling `goToNextWeek()` / `goToPreviousWeek()` when `dragOffset` exceeds `swipeThreshold` (50pt).
+- Applies `dragMultiplier` (0.3) to the drag offset for a resistance feel during in-progress swipe.
+- Resets `dragOffset` and animates to the new week on gesture end.
+- Day names row uses `EEEEE` date format (single letters: M, T, W, T, F, S, S).
 
 ---
 
@@ -147,13 +154,23 @@ A `Button` representing one day in the week strip.
 | `isSelected`      | Whether this is the currently selected day        |
 | `isToday`         | Whether this date is today (for distinct styling) |
 | `completionCount` | Number of completions on this day (0 = no dot)    |
+| `onTap`           | Callback invoked when the cell is tapped          |
+
+**Constants**:
+
+| Constant | Value | Purpose |
+| -------- | ----- | ------- |
+| `cellHeight` | 48pt | Total cell height |
+| `circleSize` | 40pt | Background circle diameter |
+| `dotSize` | 6pt | Completion dot diameter |
+| `animationDuration` | 0.2s | Selection animation duration |
 
 Appearance:
 
-- Selected: filled capsule background (`.tint`), white text.
-- Today (not selected): accent-colored day number text, no fill.
-- Default: secondary text, no fill.
-- Completion dot: small filled circle below the day number, visible when `completionCount > 0`.
+- **Selected**: filled `primary` circle, white day number.
+- **Today (not selected)**: light primary green filled circle, white bold day number.
+- **Default**: no background, `textPrimary` day number.
+- **Completion dot**: 6pt filled circle below the day number, visible when `completionCount > 0`; `primary` color on default cells, white on selected/today cells.
 
 ---
 
@@ -217,10 +234,10 @@ func goToNextWeek() {
 
 ## Animations & Transitions
 
-| Interaction                      | Animation                                                                              |
-| -------------------------------- | -------------------------------------------------------------------------------------- |
-| Day cell selection               | `.animation(.easeInOut(duration: 0.2), value: selectedDate)` on the capsule background |
-| Week navigation (arrows / swipe) | Slide transition on the week strip: `.transition(.slide)` driven by `weekOffset`       |
+| Interaction                  | Animation                                                                              |
+| ---------------------------- | -------------------------------------------------------------------------------------- |
+| Day cell selection           | `.animation(.easeInOut(duration: 0.2), value: isSelected)` on the circle background   |
+| Week navigation (swipe)      | Drag offset provides live visual feedback; on gesture end, strip snaps to new week     |
 
 ---
 

@@ -64,14 +64,15 @@ Habbit's design is **vibrant, energetic, and celebrates progress**. Every intera
 
 | Token | Hex | Usage |
 |-------|-----|-------|
-| `background` | `#FFFEF9` | Warm cream - primary background, soft and inviting |
-| `backgroundSecondary` | `#F5F9F5` | Very light sage - secondary backgrounds, cards, grouped content (subtle green tint) |
-| `backgroundTertiary` | `#EBE8E0` | Warm beige - tertiary backgrounds, subtle dividers |
+| `background` | `#EDE8DC` | Warm beige - primary screen background |
+| `backgroundSecondary` | `#F0EBE2` | Lighter warm beige - secondary backgrounds, grouped content |
+| `backgroundTertiary` | `#E0D9CE` | Warm sand - tertiary backgrounds, subtle dividers |
+| `cardBackground` | `#FFFFFF` | Pure white - card surfaces, habit rows, template rows |
 | `textPrimary` | `#2C3E2C` | Deep olive - primary text, headings (warmer than pure black) |
 | `textSecondary` | `#6B7B6B` | Soft gray-green - secondary text, captions, metadata |
 | `textTertiary` | `#B0BCB0` | Light sage gray - disabled text, placeholder text |
 
-**Design Rationale**: Warm neutrals with green undertones create a cohesive spring aesthetic. The cream background feels inviting and soft, while the olive text provides excellent readability with a natural, organic feel.
+**Design Rationale**: Warm beige backgrounds with green undertones create a cohesive spring aesthetic. Cards use pure white to stand out from the warm background, providing clear visual hierarchy while the olive text offers excellent readability.
 
 ---
 
@@ -104,33 +105,49 @@ Habbit's design is **vibrant, energetic, and celebrates progress**. Every intera
 
 ## Typography
 
+### Font Family
+
+**Fira Sans Condensed** (custom font embedded in the app bundle) is used for all text styles. All font styles use `.custom("FiraSansCondensed-...")` initializers.
+
 ### Type Scale
 
-| Style | Font | Size | Weight | Line Height | Usage |
-|-------|------|------|--------|-------------|-------|
-| `largeTitle` | SF Pro | 34pt | Bold | 41pt | Screen titles, onboarding |
-| `title` | SF Pro | 28pt | Bold | 34pt | Section headers, greeting |
-| `title2` | SF Pro | 22pt | Bold | 28pt | Card titles, modal headers |
-| `title3` | SF Pro | 20pt | Semibold | 25pt | Subsection headers |
-| `headline` | SF Pro | 17pt | Semibold | 22pt | List headers, emphasized text |
-| `body` | SF Pro | 17pt | Regular | 22pt | Body text, default text |
-| `callout` | SF Pro | 16pt | Regular | 21pt | Secondary body text |
-| `subheadline` | SF Pro | 15pt | Regular | 20pt | Metadata, descriptions |
-| `footnote` | SF Pro | 13pt | Regular | 18pt | Captions, helper text |
-| `caption` | SF Pro | 12pt | Regular | 16pt | Timestamps, tertiary info |
+| Style | Font | Size | Weight | Usage |
+|-------|------|------|--------|-------|
+| `largeTitle` | Fira Sans Condensed | 34pt | Bold | Screen titles, onboarding |
+| `title` | Fira Sans Condensed | 28pt | Bold | Section headers, greeting |
+| `title2` | Fira Sans Condensed | 22pt | Bold | Card titles, modal headers |
+| `title3` | Fira Sans Condensed | 20pt | SemiBold | Subsection headers |
+| `headline` | Fira Sans Condensed | 17pt | SemiBold | List headers, emphasized text |
+| `body` | Fira Sans Condensed | 17pt | Regular | Body text, default text |
+| `bodyEmphasized` | Fira Sans Condensed | 17pt | Medium | Emphasized body text |
+| `callout` | Fira Sans Condensed | 16pt | Regular | Secondary body text |
+| `subheadline` | Fira Sans Condensed | 15pt | Regular | Metadata, descriptions |
+| `footnote` | Fira Sans Condensed | 13pt | Regular | Captions, helper text |
+| `caption` | Fira Sans Condensed | 12pt | Regular | Timestamps, tertiary info |
+| `captionEmphasized` | Fira Sans Condensed | 12pt | Medium | Emphasized captions |
+
+### Specialized Styles
+
+| Style | Size | Weight | Usage |
+|-------|------|--------|-------|
+| `button` | 17pt | SemiBold | Primary and secondary button labels |
+| `buttonSmall` | 15pt | SemiBold | Small button labels, tab bar labels |
+| `statLarge` | 28pt | SemiBold | Large stat numbers (profile, streaks) |
+| `statMedium` | 20pt | SemiBold | Medium stat numbers |
+| `statSmall` | 17pt | Medium | Small stat numbers |
 
 ### Font Weights
 
 - **Bold (700)** - Screen titles, primary headings, emphasis
-- **Semibold (600)** - Buttons, section headers, labels
-- **Medium (500)** - Active/selected states
+- **SemiBold (600)** - Buttons, section headers, labels
+- **Medium (500)** - Active/selected states, emphasized body
 - **Regular (400)** - Body text, default state
 
 ### Usage Guidelines
 
 - **Headings**: Use bold or semibold weights for hierarchy
-- **Buttons**: Always use semibold for text
-- **Numbers/Stats**: Use medium or semibold to emphasize data
+- **Buttons**: Always use `button` or `buttonSmall` style
+- **Numbers/Stats**: Use `stat*` styles to emphasize data
 - **Today's date**: Bold when not selected (see `DayCell`)
 
 ---
@@ -245,17 +262,17 @@ Habbit's design is **vibrant, energetic, and celebrates progress**. Every intera
 **Reference**: `habbit/Views/Components/DayCell.swift`
 
 **Visual**:
-- Size: 44pt wide, 64pt tall
-- Shape: Capsule (`radiusCapsule`)
-- Spacing: 4pt between day name, number, and dot
+- Cell height: 48pt
+- Background circle: 40pt diameter (`radiusCircle`)
+- Spacing: 4pt between day number and dot
 
 **States**:
-- **Default**: Clear background, `textSecondary` day name, `textPrimary` day number
-- **Today (not selected)**: Day number in `primary` color, bold weight
-- **Selected**: `primary` background, white text
-- **With completions**: 6pt dot below number, `primary` color (white when selected)
+- **Default**: Clear background, `textPrimary` day number
+- **Today (not selected)**: Light primary green filled circle, white bold day number
+- **Selected**: `primary` filled circle, white day number
+- **With completions**: 6pt dot below number; `primary` color on default days, white on selected/today
 
-**Animation**: `.easeInOut(duration: 0.2)` on selection
+**Animation**: `.easeInOut(duration: 0.2)` on selection state changes
 
 ---
 
@@ -294,20 +311,27 @@ Habbit's design is **vibrant, energetic, and celebrates progress**. Every intera
 
 #### Habit Row
 
-**Visual** _(to be designed)_:
-- Min height: 56pt
+**Reference**: `habbit/Views/Components/HabitRowView.swift`
+
+**Visual**:
+- Height: 64pt
+- Background: `cardBackground` (white)
+- Corner radius: `radiusXLarge` (24pt)
+- Shadow: `shadowSmall`
 - Padding: `medium` (16pt) horizontal
-- Background: `background`
-- Divider: `borderThin`, `backgroundTertiary` color
 
 **Content**:
-- Habit name (`body` style, `textPrimary`)
-- Completion checkbox (28pt, `radiusMedium`)
-- Swipe actions (edit, delete)
+- Habit name (`body` style, `textPrimary`) — left aligned
+- Completion checkbox (24pt SF Symbol) — right aligned
+  - Incomplete: `circle` outline
+  - Complete: `checkmark.circle.fill` in `primary` color
 
 **States**:
-- Completed: Strikethrough text, checkmark in `success` color
-- Incomplete: Empty checkbox
+- Completed: `checkmark.circle.fill` checkbox, `primary` color
+- Incomplete: `circle` outline checkbox
+- Future date: 50% opacity, interaction disabled
+
+**Animation**: Checkbox scales to 1.2x briefly on tap (0.15s spring)
 
 ---
 
@@ -322,6 +346,36 @@ Habbit's design is **vibrant, energetic, and celebrates progress**. Every intera
 **Interaction**:
 - Tap: Show tooltip with date and completion count
 - Hover (iPad): Preview completions for that day
+
+---
+
+### Tab Bar
+
+#### CustomTabBar
+
+**Reference**: `habbit/Views/Components/CustomTabBar.swift`
+
+**Visual**:
+- Layout: Floating card, horizontally centered
+- Background: `cardBackground` (white)
+- Corner radius: `radiusXLarge` (24pt)
+- Shadow: `shadowMedium`
+- Padding: 12pt vertical, 24pt horizontal
+- Three equal-width tab buttons (`frame(maxWidth: .infinity)`)
+
+**Tab Items**:
+
+| Index | Icon | Label |
+|-------|------|-------|
+| 0 | `house.fill` | Home |
+| 1 | `list.bullet` | Templates |
+| 2 | `person` | Profile |
+
+**States**:
+- Selected: icon + label in `primary` color
+- Unselected: icon + label in `textSecondary` color
+
+**Label font**: `buttonSmall` (15pt SemiBold)
 
 ---
 
@@ -432,18 +486,15 @@ Habbit's design is **vibrant, energetic, and celebrates progress**. Every intera
 ```
 habbit/
 └── Theme/
-    ├── Tokens/
-    │   ├── Colors.swift          // Color+Theme extension
-    │   ├── Typography.swift      // Font+Theme extension
-    │   ├── Spacing.swift         // CGFloat constants
-    │   ├── CornerRadius.swift    // CGFloat constants
-    │   └── Shadows.swift         // ViewModifier for shadows
-    └── Components/
-        ├── HabbitButton.swift         // Primary/Secondary button components
-        ├── CompletionButton.swift     // Checkmark button for habits
-        ├── HeatmapCell.swift          // Heatmap calendar cell
-        └── SocialPostCard.swift       // Social post card component
+    └── Tokens/
+        ├── Colors.swift          // Color+Theme extension (hex values, heatmapColor helper)
+        ├── Typography.swift      // Font+Theme extension (Fira Sans Condensed)
+        ├── Spacing.swift         // CGFloat constants + EdgeInsets presets
+        ├── CornerRadius.swift    // CGFloat constants + RoundedRectangle helpers
+        └── Shadows.swift         // ViewModifier for shadows + ShadowStyle struct
 ```
+
+> **Note**: The `Theme/Components/` directory (HabbitButton, CompletionButton, etc.) has not yet been created. Reusable components currently live in `Views/Components/`.
 
 ### Token Usage Example
 
@@ -472,14 +523,15 @@ HabbitButton(style: .primary, title: "Complete Habit") {
 
 | Date | Version | Changes |
 |------|---------|---------|
+| 2026-02-23 | 1.3 | Updated typography (Fira Sans Condensed, specialized styles); corrected color hex values; updated DayCell, HabitRow, and CustomTabBar specs to match implementation; updated file structure |
+| 2026-02-19 | 1.2 | Implemented token files in `Theme/Tokens/`; applied tokens across all components |
 | 2026-02-19 | 1.1 | Updated to spring theme aesthetic - greens, warm neutrals, spring palette |
 | 2026-02-19 | 1.0 | Initial design system spec created |
 
 ---
 
 **Next Steps**:
-1. Finalize color hex values (replace placeholders)
-2. Implement token files in `Theme/Tokens/`
-3. Refactor existing components to use theme tokens
-4. Build reusable component library
-5. Document component usage in Xcode previews
+1. Build reusable `Theme/Components/` library (HabbitButton, CompletionButton, HeatmapCell)
+2. Add accessibility traits to CustomTabBar (`.isSelected` on active tab)
+3. Implement GitHub-style heatmap calendar for ProfileView
+4. Document component usage in Xcode previews

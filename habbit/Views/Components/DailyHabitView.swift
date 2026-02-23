@@ -36,10 +36,6 @@ struct DailyHabitView: View {
                 .foregroundStyle(.theme.textPrimary)
                 .padding(.horizontal, .spacing.medium)
 
-            if isFutureDate {
-                futureDateWarning
-            }
-
             if viewModel.isLoading {
                 loadingView
             } else if let errorMessage = viewModel.errorMessage {
@@ -133,20 +129,6 @@ struct DailyHabitView: View {
         .padding(20)
     }
 
-    private var futureDateWarning: some View {
-        HStack(spacing: 4) {
-            Image(systemName: "info.circle")
-                .font(.caption)
-            Text("Can't complete future habits")
-                .font(.caption)
-        }
-        .foregroundStyle(.secondary)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 4)
-        .background(Color.secondary.opacity(0.1))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
-        .padding(.horizontal, 12)
-    }
 }
 
 // MARK: - Preview

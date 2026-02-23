@@ -37,11 +37,7 @@ TemplateFormView              (create or edit a single template)
   └── Form fields: name, description, icon, color, active toggle
 ```
 
-**Navigation**: Template Library is accessible from the home screen via:
-
-- **Option A (Recommended)**: Tab bar item (Templates tab)
-- **Option B**: Modal sheet triggered by a "+" button in HomeView toolbar
-- **Option C**: Settings section ("Manage Habits")
+**Navigation**: Template Library is accessible via the **CustomTabBar** (index 1, `list.bullet` icon, "Templates" label). This is Option A and is the implemented approach.
 
 ---
 
@@ -106,7 +102,7 @@ TemplateFormView              (create or edit a single template)
 │  🏃  (Tap to choose from SF Symbols)│
 │                                     │
 │  Color                              │
-│  🔴 🟠 🟡 🟢 🔵 🟣 (Color picker)   │
+│  🔴 🟡 🟢 🔵 🟣 🩷 🟠 🩵 (8 swatches)│
 │                                     │
 │  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ │
 │                                     │
@@ -270,20 +266,23 @@ An `@Observable` class managing all habit templates for the current user.
 
 An `@Observable` class managing the state of the template creation/edit form.
 
-| Property       | Type      | Purpose                                    |
-| -------------- | --------- | ------------------------------------------ |
-| `name`         | `String`  | Template name (required)                   |
-| `description`  | `String`  | Template description (optional)            |
-| `icon`         | `String?` | SF Symbol name                             |
-| `color`        | `String?` | Hex color string                           |
-| `isActive`     | `Bool`    | Whether template is active on save         |
-| `isSaving`     | `Bool`    | `true` while save operation is in progress |
-| `errorMessage` | `String?` | Non-nil when validation or save fails      |
+| Property          | Type               | Purpose                                                        |
+| ----------------- | ------------------ | -------------------------------------------------------------- |
+| `name`            | `String`           | Template name (required)                                       |
+| `description`     | `String`           | Template description (optional)                                |
+| `icon`            | `String`           | SF Symbol name (default: `"figure.run"`)                       |
+| `color`           | `String`           | Hex color string (default: first preset color)                 |
+| `isActive`        | `Bool`             | Whether template is active on save                             |
+| `isSaving`        | `Bool`             | `true` while save operation is in progress                     |
+| `errorMessage`    | `String?`          | Non-nil when validation or save fails                          |
+| `templateViewModel` | `TemplateViewModel?` | Reference to parent view model for CRUD operations          |
+| `editingTemplate` | `HabitTemplate?`   | The existing template being edited; `nil` in create mode       |
 
-| Computed Property | Type   | Purpose                                   |
-| ----------------- | ------ | ----------------------------------------- |
-| `isValid`         | `Bool` | Returns `true` if `name.isEmpty == false` |
-| `canSave`         | `Bool` | Returns `isValid && !isSaving`            |
+| Computed Property | Type   | Purpose                                        |
+| ----------------- | ------ | ---------------------------------------------- |
+| `isValid`         | `Bool` | Returns `true` if `name.isEmpty == false`      |
+| `canSave`         | `Bool` | Returns `isValid && !isSaving`                 |
+| `isEditMode`      | `Bool` | Returns `true` when `editingTemplate != nil`   |
 
 | Method                               | Purpose                                                                                  |
 | ------------------------------------ | ---------------------------------------------------------------------------------------- |
@@ -327,23 +326,50 @@ Sheet or navigation-pushed view for creating or editing a template.
 - **Edit mode**: Fields pre-filled from existing template; "Save" updates; "Delete" button shown.
 - **Navigation bar**: "Cancel" (left), title (center), "Save" (right, disabled if `!isValid`).
 - **Form fields**:
-  - `TextField` for name (required, with asterisk)
+  - `TextField` for name (required)
   - `TextField` for description (optional, multiline)
-  - Icon picker (button that opens icon selection sheet)
-  - Color picker (horizontal row of color swatches)
+  - Icon picker: inline `LazyVGrid` (4 columns) of 16 preset SF Symbol icons; selected icon highlighted
+  - Color picker: inline `LazyVGrid` of 8 preset hex color swatches; selected color highlighted
   - `Toggle` for "Active" with explanatory subtext
 - **Delete button** (edit mode only): Red destructive button at bottom of form.
 
 ---
 
-### `IconPickerView` (Future / Optional)
+### `IconPickerView`
 
-Sheet displaying a grid of SF Symbols for icon selection.
+Implemented as an inline `LazyVGrid` (4 columns) directly within `TemplateFormView` — no separate sheet.
 
-- Searchable grid of common habit icons (fitness, food, wellness, learning, etc.)
-- Tapping an icon dismisses the sheet and updates the form.
+**Preset icons** (16 SF Symbol names):
 
-For MVP: use a simple `TextField` where users type an SF Symbol name, or provide a preset list.
+| | | | |
+|-|-|-|-|
+| `figure.run` | `heart.fill` | `book.fill` | `bed.double.fill` |
+| `cup.and.saucer.fill` | `dumbbell.fill` | `leaf.fill` | `brain.fill` |
+| `pencil` | `music.note` | `paintbrush.fill` | `camera.fill` |
+| `fork.knife` | `drop.fill` | `pills.fill` | `bicycle` |
+
+Tapping an icon selects it (highlighted with `primary` color background). Selected icon reflected immediately in the form preview.
+
+---
+
+### Color Picker (Inline)
+
+Implemented as an inline `LazyVGrid` (4 columns) of 8 preset color swatches within `TemplateFormView`.
+
+**Preset colors** (hex strings):
+
+| Color | Hex |
+|-------|-----|
+| Red-Orange | `#FF5733` |
+| Amber | `#FFC300` |
+| Green | `#28B463` |
+| Blue | `#2E86C1` |
+| Purple | `#8E44AD` |
+| Pink | `#E91E8C` |
+| Orange | `#FF8C00` |
+| Teal | `#00897B` |
+
+Tapping a swatch selects it (highlighted with a border or check). Selected color is stored as a hex string on the template.
 
 ---
 

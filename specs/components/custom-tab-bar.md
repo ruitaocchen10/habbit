@@ -16,35 +16,39 @@
 
 ## Overview
 
-`CustomTabBar` is a fixed-height navigation bar rendered at the bottom of each top-level view (Home, Templates, Profile). It renders three tab buttons and communicates the active tab via a two-way `@Binding<Int>`. It replaces the system `TabView` to allow custom styling and persistent placement inside each full-screen view's own `VStack`.
+`CustomTabBar` is a floating card navigation bar rendered at the bottom of each top-level view (Home, Templates, Profile). It renders three tab buttons and communicates the active tab via a two-way `@Binding<Int>`. It replaces the system `TabView` to allow custom styling.
 
 ```
-App Root
-  ├── HomeView               (selectedTab == 0) — renders CustomTabBar
-  ├── TemplateLibraryView    (selectedTab == 1) — renders CustomTabBar
-  └── ProfileView            (selectedTab == 2) — renders CustomTabBar
+ContentView
+  └── MainTabView  (@State selectedTab: Int)
+        ├── HomeView               (selectedTab == 0) — renders CustomTabBar
+        ├── TemplateLibraryView    (selectedTab == 1) — renders CustomTabBar
+        └── ProfileView            (selectedTab == 2) — renders CustomTabBar
 ```
 
-Each top-level view owns a `@Binding var selectedTab: Int` (threaded down from the root coordinator) and conditionally switches which content view is displayed. `CustomTabBar` receives a `$selectedTab` binding and mutates it when a tab is tapped.
+`MainTabView` owns `@State var selectedTab: Int` and passes `$selectedTab` as a `@Binding` to each top-level view. Each top-level view passes it into `CustomTabBar`. `CustomTabBar` receives a `$selectedTab` binding and mutates it when a tab is tapped.
 
 ---
 
 ## UI Layout
 
 ```
-+------------------------------------------------+
-|  [house.fill]   [checklist]   [person.circle]  |
-|    Home          Templates        Profile       |
-+------------------------------------------------+
-     ↑ selected                ↑ unselected
-   (primary color)         (textSecondary color)
+        +--------------------------------------+
+        |  [house.fill] [list.bullet] [person] |
+        |    Home        Templates    Profile   |
+        +--------------------------------------+
+             ↑ selected               ↑ unselected
+           (primary color)        (textSecondary color)
 ```
 
-- Fixed height: **60 pt**.
+- Floating card layout — not a full-width edge-to-edge bar.
+- Background: `Color.white` (`cardBackground`)
+- Corner radius: 24pt (`radiusXLarge`)
+- Shadow: `shadowMedium`
+- Padding: 12pt vertical, 24pt horizontal inside the card
 - Three equally-spaced tab buttons, each using `frame(maxWidth: .infinity)`.
-- Each button renders a system icon (24 pt) vertically stacked above a caption label.
-- A 1 pt separator line sits at the very top of the bar (`overlay` aligned `.top`).
-- Background: `Color.theme.background`.
+- Each button renders a system icon vertically stacked above a caption label (`buttonSmall` font style).
+- No separator line.
 
 ---
 
@@ -102,11 +106,11 @@ Renders a `Button` wrapping a `VStack(icon + label)`. Uses `frame(maxWidth: .inf
 
 ## Tab Index Reference
 
-| Index | SF Symbol             | Label     | Destination View       |
-| ----- | --------------------- | --------- | ---------------------- |
-| 0     | `house.fill`          | Home      | `HomeView`             |
-| 1     | `checklist`           | Templates | `TemplateLibraryView`  |
-| 2     | `person.circle.fill`  | Profile   | `ProfileView`          |
+| Index | SF Symbol      | Label     | Destination View       |
+| ----- | -------------- | --------- | ---------------------- |
+| 0     | `house.fill`   | Home      | `HomeView`             |
+| 1     | `list.bullet`  | Templates | `TemplateLibraryView`  |
+| 2     | `person`       | Profile   | `ProfileView`          |
 
 ---
 
@@ -129,16 +133,17 @@ CustomTabBar(selectedTab: $selectedTab)
 
 ## Design Tokens
 
-| Token                   | Value / Source                  | Applied To                          |
-| ----------------------- | ------------------------------- | ----------------------------------- |
-| Height                  | `60 pt` (`Constants.height`)    | `HStack.frame(height:)`             |
-| Icon size               | `24 pt` (`Constants.iconSize`)  | `Image.font(.system(size:))`        |
-| Selected foreground     | `Color.theme.primary`           | Icon + label when `isSelected`      |
-| Unselected foreground   | `Color.theme.textSecondary`     | Icon + label when not selected      |
-| Background              | `Color.theme.background`        | Bar background                      |
-| Divider color           | `Color.secondary.opacity(0.2)`  | Top separator line                  |
-| Label font              | `Font.theme.caption`            | Tab label `Text`                    |
-| Icon-to-label spacing   | `.spacing.xxSmall`              | `VStack(spacing:)` inside each button |
+| Token                   | Value / Source                  | Applied To                               |
+| ----------------------- | ------------------------------- | ---------------------------------------- |
+| Background              | `Color.white` (`cardBackground`) | Card background                         |
+| Corner radius           | `24 pt` (`radiusXLarge`)        | Card rounded corners                     |
+| Shadow                  | `shadowMedium`                  | Card elevation                           |
+| Vertical padding        | `12 pt` (`spacing.small`)       | Internal card padding (top/bottom)       |
+| Horizontal padding      | `24 pt` (`spacing.large`)       | Internal card padding (leading/trailing) |
+| Selected foreground     | `Color.theme.primary`           | Icon + label when `isSelected`           |
+| Unselected foreground   | `Color.theme.textSecondary`     | Icon + label when not selected           |
+| Label font              | `Font.theme.buttonSmall`        | Tab label `Text` (15pt SemiBold)         |
+| Icon-to-label spacing   | `.spacing.xxSmall` (4pt)        | `VStack(spacing:)` inside each button    |
 
 ---
 
@@ -156,6 +161,6 @@ CustomTabBar(selectedTab: $selectedTab)
 
 | Case                                       | Handling                                                                     |
 | ------------------------------------------ | ---------------------------------------------------------------------------- |
-| `selectedTab` out of range (< 0 or > 2)    | No crash; no tab renders as selected (all icons use `textSecondary` color)   |
-| Re-tapping the already-selected tab        | `selectedTab` is written with the same value; no visible change              |
-| Very narrow screen (e.g. iPad split view)  | Buttons scale down proportionally via `frame(maxWidth: .infinity)` — no wrapping |
+| `selectedTab` out of range (< 0 or > 2)    | No crash; no tab renders as selected (all icons use `textSecondary` color)       |
+| Re-tapping the already-selected tab        | `selectedTab` is written with the same value; no visible change                  |
+| Very narrow screen (e.g. iPad split view)  | Card shrinks proportionally; buttons still share equal width via `frame(maxWidth: .infinity)` |

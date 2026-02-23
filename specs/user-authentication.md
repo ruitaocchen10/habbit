@@ -46,7 +46,7 @@ Both flows follow the same pattern: Supabase opens an OAuth URL in the system br
 5. iOS delivers the URL to `habbitApp` via `onOpenURL`.
 6. `AuthManager.handle(url:)` calls `SupabaseService.client.auth.session(from: url)` to exchange the code for a session.
 7. The auth state change listener (`listenToAuthChanges`) receives a `.signedIn` event and sets `session`.
-8. `ContentView` detects `authManager.isAuthenticated == true` and shows `HomeView`.
+8. `ContentView` detects `authManager.isAuthenticated == true` and shows `MainTabView` (which defaults to `HomeView`).
 
 ```
 User taps sign-in
@@ -56,21 +56,21 @@ User taps sign-in
     → onOpenURL → handle(url:)
     → session(from: url) → session established
     → authStateChanges: .signedIn
-    → session set → HomeView shown
+    → session set → MainTabView shown (HomeView tab)
 ```
 
 ### Session Restoration on Launch
 
 1. App launches; `AuthManager.init()` calls `loadCurrentSession()`.
 2. `SupabaseService.client.auth.session` is awaited — returns the stored session if valid, throws if none.
-3. If a session exists: `session` is set and `isLoading = false` → `HomeView` shown.
+3. If a session exists: `session` is set and `isLoading = false` → `MainTabView` shown.
 4. If no session (throws): `session = nil`, `isLoading = false` → `LoginView` shown.
 
 ```
 App launches
     → loadCurrentSession()
     → client.auth.session
-        ├─ valid session  → session set → HomeView
+        ├─ valid session  → session set → MainTabView
         └─ no session     → session nil → LoginView
 ```
 
@@ -79,7 +79,7 @@ App launches
 1. User triggers sign-out (e.g. from a settings screen).
 2. `AuthManager.signOut()` calls `SupabaseService.client.auth.signOut()`.
 3. The auth state change listener receives `.signedOut`, sets `session = nil`.
-4. `ContentView` detects `authManager.isAuthenticated == false` and shows `LoginView`.
+4. `ContentView` detects `authManager.isAuthenticated == false` and replaces `MainTabView` with `LoginView`.
 
 ---
 
@@ -87,17 +87,19 @@ App launches
 
 `ContentView` renders one of three states based on `AuthManager`:
 
-| State           | Condition                              | UI Shown        |
-|-----------------|----------------------------------------|-----------------|
-| **Loading**     | `authManager.isLoading == true`        | `ProgressView`  |
+| State               | Condition                              | UI Shown        |
+|---------------------|----------------------------------------|-----------------|
+| **Loading**         | `authManager.isLoading == true`        | `ProgressView`  |
 | **Unauthenticated** | `isLoading == false`, `session == nil` | `LoginView`     |
-| **Authenticated**   | `isLoading == false`, `session != nil` | `HomeView`      |
+| **Authenticated**   | `isLoading == false`, `session != nil` | `MainTabView`   |
+
+> **Note**: The authenticated state shows `MainTabView` (not `HomeView` directly). `MainTabView` is the root coordinator that manages `selectedTab` state and renders `HomeView`, `TemplateLibraryView`, or `ProfileView` based on the selected tab, with `CustomTabBar` inside each.
 
 Transitions:
 
 ```
-[Loading] ──────────────────→ [Authenticated]
-    └──────────────────────→ [Unauthenticated]
+[Loading] ──────────────────→ [Authenticated → MainTabView]
+    └──────────────────────→ [Unauthenticated → LoginView]
 
 [Unauthenticated] ──sign-in──→ [Authenticated]
 [Authenticated]   ──sign-out─→ [Unauthenticated]
@@ -129,7 +131,11 @@ Displays app branding and two OAuth buttons (Google, Apple). Reads `authManager.
 
 ### `ContentView.swift` — Auth Gate
 
-The root view that switches between `ProgressView`, `LoginView`, and `HomeView` based on `AuthManager` state. Reads `AuthManager` from the environment.
+The root view that switches between `ProgressView`, `LoginView`, and `MainTabView` based on `AuthManager` state. Reads `AuthManager` from the environment.
+
+### `MainTabView.swift` — Tab Coordinator
+
+Rendered when the user is authenticated. Owns `@State var selectedTab: Int` and uses a `switch` to render the active top-level view (`HomeView`, `TemplateLibraryView`, or `ProfileView`). Passes `$selectedTab` as a `@Binding` to each child view so `CustomTabBar` can update it.
 
 ### `habbitApp.swift` — App Entry Point
 
