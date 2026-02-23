@@ -135,88 +135,46 @@ struct DailyHabitView: View {
 
 #Preview("With Habits") {
     @Previewable @State var viewModel = HabitViewModel()
-    viewModel.activeTemplates = [
-        HabitTemplate(
-            id: UUID(),
-            userId: UUID(),
-            name: "Morning Run",
-            description: nil,
-            icon: "figure.run",
-            color: "#FF5733",
-            isActive: true,
-            activatedAt: Date(),
-            createdAt: Date(),
-            updatedAt: Date()
-        ),
-        HabitTemplate(
-            id: UUID(),
-            userId: UUID(),
-            name: "Meditate",
-            description: nil,
-            icon: "heart.circle",
-            color: "#33C1FF",
-            isActive: true,
-            activatedAt: Date(),
-            createdAt: Date(),
-            updatedAt: Date()
-        ),
-        HabitTemplate(
-            id: UUID(),
-            userId: UUID(),
-            name: "Read 20 min",
-            description: nil,
-            icon: "book",
-            color: "#9B59B6",
-            isActive: true,
-            activatedAt: Date(),
-            createdAt: Date(),
-            updatedAt: Date()
-        )
-    ]
-    viewModel.completionsForDate = [viewModel.activeTemplates[1].id]
-
-    return DailyHabitView(viewModel: viewModel, selectedDate: Date())
+    DailyHabitView(viewModel: viewModel, selectedDate: Date())
+        .task {
+            let templates = [
+                HabitTemplate(id: UUID(), userId: UUID(), name: "Morning Run", description: nil, isActive: true, activatedAt: Date(), createdAt: Date(), updatedAt: Date()),
+                HabitTemplate(id: UUID(), userId: UUID(), name: "Meditate", description: nil, isActive: true, activatedAt: Date(), createdAt: Date(), updatedAt: Date()),
+                HabitTemplate(id: UUID(), userId: UUID(), name: "Read 20 min", description: nil, isActive: true, activatedAt: Date(), createdAt: Date(), updatedAt: Date())
+            ]
+            viewModel.activeTemplates = templates
+            viewModel.completionsForDate = [templates[1].id]
+        }
 }
 
 #Preview("Empty State") {
     @Previewable @State var viewModel = HabitViewModel()
-    viewModel.activeTemplates = []
-    viewModel.isLoading = false
-
-    return DailyHabitView(viewModel: viewModel, selectedDate: Date())
+    DailyHabitView(viewModel: viewModel, selectedDate: Date())
 }
 
 #Preview("Loading") {
     @Previewable @State var viewModel = HabitViewModel()
-    viewModel.isLoading = true
-
-    return DailyHabitView(viewModel: viewModel, selectedDate: Date())
+    DailyHabitView(viewModel: viewModel, selectedDate: Date())
+        .task {
+            viewModel.isLoading = true
+        }
 }
 
 #Preview("Error State") {
     @Previewable @State var viewModel = HabitViewModel()
-    viewModel.errorMessage = "Failed to load habits. Please check your connection."
-
-    return DailyHabitView(viewModel: viewModel, selectedDate: Date())
+    DailyHabitView(viewModel: viewModel, selectedDate: Date())
+        .task {
+            viewModel.errorMessage = "Failed to load habits. Please check your connection."
+        }
 }
 
 #Preview("Future Date") {
     @Previewable @State var viewModel = HabitViewModel()
-    viewModel.activeTemplates = [
-        HabitTemplate(
-            id: UUID(),
-            userId: UUID(),
-            name: "Morning Run",
-            description: nil,
-            icon: "figure.run",
-            color: "#FF5733",
-            isActive: true,
-            activatedAt: Date(),
-            createdAt: Date(),
-            updatedAt: Date()
-        )
-    ]
-
     let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: Date())!
-    return DailyHabitView(viewModel: viewModel, selectedDate: tomorrow)
+    DailyHabitView(viewModel: viewModel, selectedDate: tomorrow)
+        .task {
+            viewModel.activeTemplates = [
+                HabitTemplate(id: UUID(), userId: UUID(), name: "Morning Run", description: nil, isActive: true, activatedAt: Date(), createdAt: Date(), updatedAt: Date())
+            ]
+        }
 }

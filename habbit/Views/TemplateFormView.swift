@@ -15,26 +15,6 @@ struct TemplateFormView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showingDeleteAlert = false
 
-    // Preset color options
-    private let colorOptions = [
-        "#FF5733", // Red-Orange
-        "#FFC107", // Amber
-        "#4CAF50", // Green
-        "#42A5F5", // Blue
-        "#9B59B6", // Purple
-        "#E91E63", // Pink
-        "#FF9800", // Orange
-        "#009688"  // Teal
-    ]
-
-    // Common habit icons
-    private let iconOptions = [
-        "figure.run", "heart.circle", "book", "bed.double",
-        "cup.and.saucer", "dumbbell", "leaf", "brain.head.profile",
-        "pencil", "music.note", "paintbrush", "camera",
-        "fork.knife", "drop", "pills", "bicycle"
-    ]
-
     // MARK: - Initialization
 
     init(viewModel: TemplateViewModel, template: HabitTemplate?) {
@@ -50,72 +30,38 @@ struct TemplateFormView: View {
             Form {
                 // Name Section
                 Section {
-                    TextField("Habit Name", text: $formViewModel.name)
+                    TextField("Habit Name", text: $formViewModel.name,
+                              prompt: Text("Habit Name").foregroundStyle(.theme.textSecondary))
                         .autocorrectionDisabled()
+                        .font(.theme.body)
+                        .foregroundStyle(.theme.textPrimary)
                 } header: {
                     Text("NAME *")
+                        .font(.theme.caption)
+                        .foregroundStyle(.theme.textSecondary)
                 } footer: {
                     if !formViewModel.isValid && !formViewModel.name.isEmpty {
                         Text("Name is required")
+                            .font(.theme.caption)
                             .foregroundStyle(.theme.error)
                     }
                 }
+                .listRowBackground(Color.theme.cardBackground)
 
                 // Description Section
                 Section {
-                    TextField("Description (optional)", text: $formViewModel.description, axis: .vertical)
+                    TextField("Description (optional)", text: $formViewModel.description,
+                              prompt: Text("Description (optional)").foregroundStyle(.theme.textSecondary),
+                              axis: .vertical)
                         .lineLimit(3...6)
+                        .font(.theme.body)
+                        .foregroundStyle(.theme.textPrimary)
                 } header: {
                     Text("DESCRIPTION")
+                        .font(.theme.caption)
+                        .foregroundStyle(.theme.textSecondary)
                 }
-
-                // Icon Section
-                Section {
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 50))], spacing: .spacing.small) {
-                        ForEach(iconOptions, id: \.self) { icon in
-                            Button {
-                                formViewModel.icon = icon
-                            } label: {
-                                Image(systemName: icon)
-                                    .font(.system(size: 28))
-                                    .foregroundStyle(formViewModel.icon == icon ? .theme.primary : .theme.textSecondary)
-                                    .frame(width: 50, height: 50)
-                                    .background(
-                                        formViewModel.icon == icon ? Color.theme.primary.opacity(0.1) : Color.clear
-                                    )
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                            }
-                        }
-                    }
-                    .padding(.vertical, .spacing.xSmall)
-                } header: {
-                    Text("ICON")
-                }
-
-                // Color Section
-                Section {
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 50))], spacing: .spacing.small) {
-                        ForEach(colorOptions, id: \.self) { colorHex in
-                            Button {
-                                formViewModel.color = colorHex
-                            } label: {
-                                Circle()
-                                    .fill(Color(hex: colorHex) ?? .theme.primary)
-                                    .frame(width: 40, height: 40)
-                                    .overlay {
-                                        if formViewModel.color == colorHex {
-                                            Image(systemName: "checkmark")
-                                                .foregroundStyle(.white)
-                                                .fontWeight(.bold)
-                                        }
-                                    }
-                            }
-                        }
-                    }
-                    .padding(.vertical, .spacing.xSmall)
-                } header: {
-                    Text("COLOR")
-                }
+                .listRowBackground(Color.theme.cardBackground)
 
                 // Active Toggle Section
                 Section {
@@ -123,6 +69,7 @@ struct TemplateFormView: View {
                         VStack(alignment: .leading, spacing: .spacing.xxSmall) {
                             Text("Active")
                                 .font(.theme.body)
+                                .foregroundStyle(.theme.textPrimary)
                             Text("When active, this habit appears in your daily list")
                                 .font(.theme.caption)
                                 .foregroundStyle(.theme.textSecondary)
@@ -130,6 +77,7 @@ struct TemplateFormView: View {
                     }
                     .tint(.theme.primary)
                 }
+                .listRowBackground(Color.theme.cardBackground)
 
                 // Delete Button Section (Edit Mode Only)
                 if formViewModel.isEditMode {
@@ -140,20 +88,28 @@ struct TemplateFormView: View {
                             HStack {
                                 Spacer()
                                 Text("Delete Template")
-                                    .fontWeight(.medium)
+                                    .font(.theme.body)
                                 Spacer()
                             }
                         }
                     }
+                    .listRowBackground(Color.theme.cardBackground)
                 }
             }
-            .navigationTitle(formViewModel.isEditMode ? "Edit Habit" : "New Habit")
-            .navigationBarTitleDisplayMode(.inline)
+            .scrollContentBackground(.hidden)
+            .background(.theme.background)
             .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text(formViewModel.isEditMode ? "Edit Habit" : "New Habit")
+                        .font(.theme.headline)
+                        .foregroundStyle(.theme.textPrimary)
+                }
+
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
                         dismiss()
                     }
+                    .font(.theme.body)
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
@@ -166,7 +122,7 @@ struct TemplateFormView: View {
                         }
                     }
                     .disabled(!formViewModel.canSave)
-                    .fontWeight(.semibold)
+                    .font(.theme.button)
                 }
             }
             .alert("Delete Template", isPresented: $showingDeleteAlert) {
@@ -214,8 +170,6 @@ struct TemplateFormView: View {
             userId: UUID(),
             name: "Morning Run",
             description: "30 min cardio around the park",
-            icon: "figure.run",
-            color: "#FF5733",
             isActive: true,
             activatedAt: Date(),
             createdAt: Date(),

@@ -16,18 +16,8 @@ struct TemplateRow: View {
     // MARK: - Design Tokens
 
     private enum Constants {
-        static let iconSize: CGFloat = 24
-        static let rowHeight: CGFloat = 64
+        static let rowHeight: CGFloat = 48
         static let toggleWidth: CGFloat = 51
-    }
-
-    // MARK: - Computed Properties
-
-    private var iconColor: Color {
-        if let colorHex = template.color {
-            return Color(hex: colorHex) ?? .theme.primary
-        }
-        return .theme.primary
     }
 
     // MARK: - Body
@@ -35,17 +25,6 @@ struct TemplateRow: View {
     var body: some View {
         Button(action: onEdit) {
             HStack(spacing: .spacing.small) {
-                // Habit icon
-                if let iconName = template.icon, !iconName.isEmpty {
-                    Image(systemName: iconName)
-                        .font(.system(size: Constants.iconSize))
-                        .foregroundStyle(iconColor)
-                } else {
-                    Image(systemName: "circle.fill")
-                        .font(.system(size: Constants.iconSize))
-                        .foregroundStyle(.theme.textTertiary)
-                }
-
                 // Habit name and description
                 VStack(alignment: .leading, spacing: .spacing.xxSmall) {
                     Text(template.name)
@@ -72,7 +51,7 @@ struct TemplateRow: View {
                 .tint(.theme.primary)
                 .frame(width: Constants.toggleWidth)
             }
-            .padding(.horizontal, .spacing.medium)
+            .padding(.horizontal, .spacing.xSmall)
             .frame(height: Constants.rowHeight)
             .contentShape(Rectangle())
         }
@@ -99,8 +78,6 @@ struct TemplateRow: View {
             userId: UUID(),
             name: "Morning Run",
             description: "30 min cardio around the park",
-            icon: "figure.run",
-            color: "#FF5733",
             isActive: true,
             activatedAt: Date(),
             createdAt: Date(),
@@ -119,8 +96,6 @@ struct TemplateRow: View {
             userId: UUID(),
             name: "Meditation",
             description: "10 min mindfulness",
-            icon: "heart.circle",
-            color: "#9B59B6",
             isActive: false,
             activatedAt: nil,
             createdAt: Date(),
@@ -139,8 +114,6 @@ struct TemplateRow: View {
             userId: UUID(),
             name: "Read",
             description: nil,
-            icon: "book",
-            color: "#4CAF50",
             isActive: true,
             activatedAt: Date(),
             createdAt: Date(),

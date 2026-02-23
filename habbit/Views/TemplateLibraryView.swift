@@ -19,57 +19,62 @@ struct TemplateLibraryView: View {
     // MARK: - Body
 
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                Group {
-                    if viewModel.isLoading {
-                        loadingView
-                    } else if viewModel.templates.isEmpty {
-                        emptyStateView
-                    } else {
-                        templateList
-                    }
-                }
-                .navigationTitle("Habit Templates")
-                .navigationBarTitleDisplayMode(.large)
-                .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            showingCreateSheet = true
-                        } label: {
-                            Image(systemName: "plus.circle.fill")
-                                .foregroundStyle(.theme.primary)
-                        }
-                    }
-                }
-                .sheet(isPresented: $showingCreateSheet) {
-                    TemplateFormView(viewModel: viewModel, template: nil)
-                }
-                .sheet(isPresented: $showingEditSheet) {
-                    if let template = selectedTemplate {
-                        TemplateFormView(viewModel: viewModel, template: template)
-                    }
-                }
-                .alert("Delete Template", isPresented: $showingDeleteAlert, presenting: templateToDelete) { template in
-                    Button("Cancel", role: .cancel) {}
-                    Button("Delete", role: .destructive) {
-                        Task {
-                            await viewModel.deleteTemplate(template)
-                        }
-                    }
-                } message: { template in
-                    Text("Are you sure you want to delete '\(template.name)'? This will also delete all completion history.")
-                }
-                .task {
-                    await viewModel.loadTemplates()
-                }
-                .refreshable {
-                    await viewModel.loadTemplates()
-                }
+        VStack(spacing: 0) {
+            // Custom header
+            HStack(alignment: .center) {
+                Text("Habit Templates")
+                    .font(.theme.title)
+                    .foregroundStyle(.theme.textPrimary)
 
-                // Tab Bar
-                CustomTabBar(selectedTab: $selectedTab)
+                Spacer()
+
+                Button {
+                    showingCreateSheet = true
+                } label: {
+                    Image(systemName: "plus.circle")
+                        .font(.system(size: 28))
+                        .foregroundStyle(.theme.primary)
+                }
             }
+            .padding(.horizontal, .spacing.medium)
+            .padding(.top, .spacing.medium)
+            .padding(.bottom, .spacing.small)
+
+            // Content
+            Group {
+                if viewModel.isLoading {
+                    loadingView
+                } else if viewModel.templates.isEmpty {
+                    emptyStateView
+                } else {
+                    templateList
+                }
+            }
+        }
+        .background(.theme.background)
+        .safeAreaInset(edge: .bottom) {
+            CustomTabBar(selectedTab: $selectedTab)
+        }
+        .sheet(isPresented: $showingCreateSheet) {
+            TemplateFormView(viewModel: viewModel, template: nil)
+        }
+        .sheet(isPresented: $showingEditSheet) {
+            if let template = selectedTemplate {
+                TemplateFormView(viewModel: viewModel, template: template)
+            }
+        }
+        .alert("Delete Template", isPresented: $showingDeleteAlert, presenting: templateToDelete) { template in
+            Button("Cancel", role: .cancel) {}
+            Button("Delete", role: .destructive) {
+                Task {
+                    await viewModel.deleteTemplate(template)
+                }
+            }
+        } message: { template in
+            Text("Are you sure you want to delete '\(template.name)'? This will also delete all completion history.")
+        }
+        .task {
+            await viewModel.loadTemplates()
         }
     }
 
@@ -97,9 +102,14 @@ struct TemplateLibraryView: View {
                                 showingDeleteAlert = true
                             }
                         )
+                        .listRowBackground(Color.theme.cardBackground)
                     }
                 } header: {
-                    Text("ACTIVE (\(viewModel.activeTemplates.count))")
+                    Text("Active (\(viewModel.activeTemplates.count))")
+                        .font(.theme.subheadline)
+                        .foregroundStyle(.theme.textSecondary)
+                        .textCase(nil)
+                        .listRowInsets(EdgeInsets())
                 }
             }
 
@@ -123,22 +133,33 @@ struct TemplateLibraryView: View {
                                 showingDeleteAlert = true
                             }
                         )
+                        .listRowBackground(Color.theme.cardBackground)
                     }
                 } header: {
-                    Text("INACTIVE (\(viewModel.inactiveTemplates.count))")
+                    Text("Inactive (\(viewModel.inactiveTemplates.count))")
+                        .font(.theme.subheadline)
+                        .foregroundStyle(.theme.textSecondary)
+                        .textCase(nil)
+                        .listRowInsets(EdgeInsets())
                 }
             } else if viewModel.activeTemplates.isEmpty {
-                // Show message only if there are active templates but no inactive ones
                 Section {
                     Text("No inactive templates.")
                         .font(.theme.caption)
                         .foregroundStyle(.theme.textSecondary)
                 } header: {
-                    Text("INACTIVE")
+                    Text("Inactive")
+                        .font(.theme.subheadline)
+                        .foregroundStyle(.theme.textSecondary)
+                        .textCase(nil)
                 }
             }
         }
         .listStyle(.insetGrouped)
+        .scrollContentBackground(.hidden)
+        .refreshable {
+            await viewModel.loadTemplates()
+        }
     }
 
     private var loadingView: some View {

@@ -2,7 +2,7 @@
 //  ProfileView.swift
 //  habbit
 //
-//  User profile with stats, streaks, and settings
+//  User profile with stats, streaks, and activity heatmap
 //
 
 import SwiftUI
@@ -11,6 +11,8 @@ import Auth
 struct ProfileView: View {
     @Environment(AuthManager.self) private var authManager
     @Binding var selectedTab: Int
+
+    @State private var profileVM = ProfileViewModel()
 
     // MARK: - Design Tokens
 
@@ -48,6 +50,7 @@ struct ProfileView: View {
             VStack(spacing: 0) {
                 ScrollView {
                     VStack(spacing: Constants.sectionSpacing) {
+
                         // User Info Section
                         VStack(spacing: .spacing.medium) {
                             // Avatar
@@ -88,7 +91,7 @@ struct ProfileView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.horizontal)
 
-                        // Stats Section (Placeholder)
+                        // Stats Section
                         VStack(alignment: .leading, spacing: .spacing.small) {
                             Text("Stats")
                                 .font(.theme.title3)
@@ -96,14 +99,24 @@ struct ProfileView: View {
                                 .foregroundStyle(Color.theme.textPrimary)
                                 .padding(.horizontal)
 
-                            VStack(spacing: .spacing.small) {
-                                StatPlaceholder(title: "Current Streak", value: "Coming Soon")
-                                StatPlaceholder(title: "Total Completions", value: "Coming Soon")
-                                StatPlaceholder(title: "Active Habits", value: "Coming Soon")
+                            HStack(spacing: .spacing.small) {
+                                StatCard(
+                                    value: profileVM.isLoading ? "-" : "\(profileVM.currentStreak)",
+                                    label: "Current Streak",
+                                    icon: "flame.fill",
+                                    iconColor: Color.orange
+                                )
+                                StatCard(
+                                    value: profileVM.isLoading ? "-" : "\(profileVM.totalCompletions)",
+                                    label: "Total Completions",
+                                    icon: "checkmark.seal.fill",
+                                    iconColor: Color.theme.primary
+                                )
                             }
+                            .padding(.horizontal)
                         }
 
-                        // Heatmap Section (Placeholder)
+                        // Activity Heatmap Section
                         VStack(alignment: .leading, spacing: .spacing.small) {
                             Text("Activity")
                                 .font(.theme.title3)
@@ -111,16 +124,8 @@ struct ProfileView: View {
                                 .foregroundStyle(Color.theme.textPrimary)
                                 .padding(.horizontal)
 
-                            VStack(spacing: .spacing.small) {
-                                Text("Heatmap calendar coming soon")
-                                    .font(.theme.body)
-                                    .foregroundStyle(Color.theme.textSecondary)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .padding()
-                                    .background(Color.theme.backgroundSecondary)
-                                    .cornerRadius(.radius.medium)
-                            }
-                            .padding(.horizontal)
+                            ActivityHeatmapView(completionsByDate: profileVM.completionsByDate)
+                                .padding(.horizontal)
                         }
 
                         // Sign Out Button
@@ -149,32 +154,48 @@ struct ProfileView: View {
             .background(Color.theme.background)
             .navigationTitle("Profile")
             .navigationBarTitleDisplayMode(.inline)
+            .task {
+                await profileVM.loadStats()
+            }
         }
     }
 }
 
-// MARK: - Stat Placeholder
+// MARK: - Stat Card
 
-private struct StatPlaceholder: View {
-    let title: String
+private struct StatCard: View {
     let value: String
+    let label: String
+    let icon: String
+    let iconColor: Color
 
     var body: some View {
-        HStack {
-            Text(title)
-                .font(.theme.body)
-                .foregroundStyle(Color.theme.textPrimary)
+        ZStack(alignment: .bottomTrailing) {
+            // Decorative background icon
+            Image(systemName: icon)
+                .font(.system(size: 56, weight: .bold))
+                .foregroundStyle(iconColor.opacity(0.12))
+                .padding(.spacing.small)
 
-            Spacer()
+            // Content
+            VStack(alignment: .leading, spacing: .spacing.xxSmall) {
+                Text(value)
+                    .font(.theme.largeTitle)
+                    .fontWeight(.bold)
+                    .foregroundStyle(Color.theme.textPrimary)
+                    .contentTransition(.numericText())
 
-            Text(value)
-                .font(.theme.body)
-                .foregroundStyle(Color.theme.textSecondary)
+                Text(label)
+                    .font(.theme.subheadline)
+                    .foregroundStyle(Color.theme.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.spacing.medium)
         }
-        .padding()
-        .background(Color.theme.backgroundSecondary)
-        .cornerRadius(.radius.medium)
-        .padding(.horizontal)
+        .frame(maxWidth: .infinity)
+        .background(Color.theme.cardBackground)
+        .cornerRadius(.radius.large)
     }
 }
 

@@ -57,8 +57,6 @@ class TemplateViewModel {
         let user_id: String
         let name: String
         let description: String?
-        let icon: String?
-        let color: String?
         let is_active: Bool
         let activated_at: String?
     }
@@ -73,8 +71,6 @@ class TemplateViewModel {
                 user_id: userId.uuidString,
                 name: template.name,
                 description: template.description,
-                icon: template.icon,
-                color: template.color,
                 is_active: template.isActive,
                 activated_at: template.isActive ? Date().isoDateString : nil
             )
@@ -98,8 +94,6 @@ class TemplateViewModel {
     private struct HabitTemplateUpdatePayload: Encodable {
         let name: String
         let description: String?
-        let icon: String?
-        let color: String?
         let is_active: Bool
         let updated_at: String
         let activated_at: String?
@@ -114,8 +108,6 @@ class TemplateViewModel {
             let payload = HabitTemplateUpdatePayload(
                 name: template.name,
                 description: template.description,
-                icon: template.icon,
-                color: template.color,
                 is_active: template.isActive,
                 updated_at: Date().isoDateString,
                 activated_at: (template.isActive && template.activatedAt == nil) ? Date().isoDateString : nil
@@ -140,15 +132,11 @@ class TemplateViewModel {
     // MARK: - Toggle Active Status
 
     func toggleActive(for template: HabitTemplate) async {
-        // Create a mutable copy of the template
-        var updatedTemplate = template
-        updatedTemplate = HabitTemplate(
+        let updatedTemplate = HabitTemplate(
             id: template.id,
             userId: template.userId,
             name: template.name,
             description: template.description,
-            icon: template.icon,
-            color: template.color,
             isActive: !template.isActive,
             activatedAt: !template.isActive ? Date() : template.activatedAt,
             createdAt: template.createdAt,
@@ -188,4 +176,3 @@ class TemplateViewModel {
         }
     }
 }
-

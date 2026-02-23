@@ -15,8 +15,6 @@ class TemplateFormViewModel {
 
     var name: String = ""
     var description: String = ""
-    var icon: String = ""
-    var color: String = ""
     var isActive: Bool = false
     var isSaving: Bool = false
     var errorMessage: String?
@@ -58,8 +56,6 @@ class TemplateFormViewModel {
                     userId: existingTemplate.userId,
                     name: name.trimmingCharacters(in: .whitespacesAndNewlines),
                     description: description.isEmpty ? nil : description,
-                    icon: icon.isEmpty ? nil : icon,
-                    color: color.isEmpty ? nil : color,
                     isActive: isActive,
                     activatedAt: isActive ? (existingTemplate.activatedAt ?? Date()) : existingTemplate.activatedAt,
                     createdAt: existingTemplate.createdAt,
@@ -73,8 +69,6 @@ class TemplateFormViewModel {
                     userId: UUID(), // Will be overridden by backend
                     name: name.trimmingCharacters(in: .whitespacesAndNewlines),
                     description: description.isEmpty ? nil : description,
-                    icon: icon.isEmpty ? nil : icon,
-                    color: color.isEmpty ? nil : color,
                     isActive: isActive,
                     activatedAt: isActive ? Date() : nil,
                     createdAt: Date(),
@@ -107,8 +101,6 @@ class TemplateFormViewModel {
     func reset() {
         name = ""
         description = ""
-        icon = ""
-        color = ""
         isActive = false
         errorMessage = nil
         editingTemplate = nil
@@ -118,8 +110,6 @@ class TemplateFormViewModel {
         editingTemplate = template
         name = template.name
         description = template.description ?? ""
-        icon = template.icon ?? ""
-        color = template.color ?? ""
         isActive = template.isActive
         errorMessage = nil
     }
