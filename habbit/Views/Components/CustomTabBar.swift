@@ -13,7 +13,6 @@ struct CustomTabBar: View {
     // MARK: - Design Tokens
 
     private enum Constants {
-        static let height: CGFloat = 60
         static let iconSize: CGFloat = 24
     }
 
@@ -32,7 +31,7 @@ struct CustomTabBar: View {
 
             // Templates Tab
             TabBarButton(
-                icon: "checklist",
+                icon: "list.bullet",
                 title: "Templates",
                 isSelected: selectedTab == 1
             ) {
@@ -41,21 +40,19 @@ struct CustomTabBar: View {
 
             // Profile Tab
             TabBarButton(
-                icon: "person.circle.fill",
+                icon: "person",
                 title: "Profile",
                 isSelected: selectedTab == 2
             ) {
                 selectedTab = 2
             }
         }
-        .frame(height: Constants.height)
-        .background(Color.theme.background)
-        .overlay(
-            Divider()
-                .frame(maxWidth: .infinity, maxHeight: 1)
-                .background(Color.secondary.opacity(0.2)),
-            alignment: .top
-        )
+        .padding(.vertical, 12)
+        .background(Color.theme.cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 24))
+        .shadowSmall()
+        .padding(.horizontal, 24)
+        .padding(.bottom, 4)
     }
 }
 

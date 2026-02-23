@@ -64,21 +64,19 @@ struct DayCell: View {
     // MARK: - Styling
 
     private var backgroundColor: Color {
-        isSelected ? .theme.primary : .clear
+        if isSelected { return .theme.primary }
+        if isToday { return .theme.primaryLight }
+        return .clear
     }
 
     private var numberColor: Color {
-        if isSelected {
-            return .white
-        }
-        if isToday {
-            return .theme.primary
-        }
+        if isSelected { return .white }
+        if isToday { return .white }
         return .theme.textPrimary
     }
 
     private var dotColor: Color {
-        isSelected ? .white : .theme.primary
+        (isSelected || isToday) ? .white : .theme.primary
     }
 }
 

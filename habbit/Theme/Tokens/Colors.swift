@@ -36,14 +36,17 @@ extension Color {
 
         // MARK: - Neutral Palette (Warm Spring Tones)
 
-        /// Primary background color - warm cream, soft and inviting
-        static let background = Color(hexString: "#FFFEF9")
+        /// Primary background color - warm beige, natural and inviting
+        static let background = Color(hexString: "#EDE8DC")
 
-        /// Secondary background - very light sage with subtle green tint
-        static let backgroundSecondary = Color(hexString: "#F5F9F5")
+        /// Secondary background - lighter warm beige for nested sections
+        static let backgroundSecondary = Color(hexString: "#F0EBE2")
 
-        /// Tertiary background - warm beige for subtle dividers
-        static let backgroundTertiary = Color(hexString: "#EBE8E0")
+        /// Tertiary background - warm sand for subtle dividers
+        static let backgroundTertiary = Color(hexString: "#E0D9CE")
+
+        /// Card background - pure white for elevated surfaces (habit rows, cards)
+        static let cardBackground = Color(hexString: "#FFFFFF")
 
         /// Primary text color - deep olive, warmer than pure black
         static let textPrimary = Color(hexString: "#2C3E2C")

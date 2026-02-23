@@ -20,18 +20,9 @@ struct HabitRowView: View {
     private enum Constants {
         static let iconSize: CGFloat = 24
         static let checkboxSize: CGFloat = 24
-        static let rowHeight: CGFloat = 56
+        static let rowHeight: CGFloat = 64
         static let scaleAnimationAmount: CGFloat = 1.2
         static let animationDuration: CGFloat = 0.15
-    }
-
-    // MARK: - Computed Properties
-
-    private var iconColor: Color {
-        if let colorHex = template.color {
-            return Color(hex: colorHex) ?? .theme.primary
-        }
-        return .theme.primary
     }
 
     // MARK: - Body
@@ -39,27 +30,23 @@ struct HabitRowView: View {
     var body: some View {
         Button(action: handleTap) {
             HStack(spacing: .spacing.small) {
-                // Checkbox
-                Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
-                    .font(.system(size: Constants.checkboxSize))
-                    .foregroundStyle(isCompleted ? .theme.primary : .theme.textSecondary)
-                    .scaleEffect(isAnimating ? Constants.scaleAnimationAmount : 1.0)
-
-                // Habit icon
-                if let iconName = template.icon {
-                    Image(systemName: iconName)
-                        .font(.system(size: Constants.iconSize))
-                        .foregroundStyle(iconColor)
-                }
-
                 // Habit name
                 Text(template.name)
                     .font(.theme.body)
                     .foregroundStyle(.theme.textPrimary)
                     .frame(maxWidth: .infinity, alignment: .leading)
+
+                // Checkbox (right side)
+                Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
+                    .font(.system(size: Constants.checkboxSize))
+                    .foregroundStyle(isCompleted ? .theme.primary : .theme.textSecondary)
+                    .scaleEffect(isAnimating ? Constants.scaleAnimationAmount : 1.0)
             }
             .padding(.horizontal, .spacing.medium)
             .frame(height: Constants.rowHeight)
+            .background(Color.theme.cardBackground)
+            .clipShape(RoundedRectangle(cornerRadius: .radius.xLarge, style: .continuous))
+            .shadowSmall()
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

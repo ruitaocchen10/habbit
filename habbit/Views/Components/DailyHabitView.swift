@@ -29,7 +29,13 @@ struct DailyHabitView: View {
     // MARK: - Body
 
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(alignment: .leading, spacing: .spacing.small) {
+            // Section header
+            Text("Today's Habits")
+                .font(.theme.headline)
+                .foregroundStyle(.theme.textPrimary)
+                .padding(.horizontal, .spacing.medium)
+
             if isFutureDate {
                 futureDateWarning
             }
@@ -49,28 +55,22 @@ struct DailyHabitView: View {
     // MARK: - Subviews
 
     private var habitList: some View {
-        ScrollView {
-            LazyVStack(spacing: 0) {
-                ForEach(viewModel.activeTemplates) { template in
-                    HabitRowView(
-                        template: template,
-                        isCompleted: viewModel.completionsForDate.contains(template.id),
-                        isFutureDate: isFutureDate,
-                        onToggle: {
-                            Task {
-                                await viewModel.toggleCompletion(for: template, on: selectedDate)
-                            }
+        LazyVStack(spacing: .spacing.xSmall) {
+            ForEach(viewModel.activeTemplates) { template in
+                HabitRowView(
+                    template: template,
+                    isCompleted: viewModel.completionsForDate.contains(template.id),
+                    isFutureDate: isFutureDate,
+                    onToggle: {
+                        Task {
+                            await viewModel.toggleCompletion(for: template, on: selectedDate)
                         }
-                    )
-
-                    if template.id != viewModel.activeTemplates.last?.id {
-                        Divider()
-                            .padding(.leading, 12)
                     }
-                }
+                )
             }
-            .animation(.easeInOut(duration: Constants.animationDuration), value: viewModel.activeTemplates.map { $0.id })
         }
+        .padding(.horizontal, .spacing.medium)
+        .animation(.easeInOut(duration: Constants.animationDuration), value: viewModel.activeTemplates.map { $0.id })
     }
 
     private var loadingView: some View {
