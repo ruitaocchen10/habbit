@@ -44,10 +44,10 @@ ContentView
 - Floating card layout — not a full-width edge-to-edge bar.
 - Background: `Color.white` (`cardBackground`)
 - Corner radius: 24pt (`radiusXLarge`)
-- Shadow: `shadowMedium`
-- Padding: 12pt vertical, 24pt horizontal inside the card
+- Shadow: `shadowSmall`
+- Padding: 12pt vertical inside the card; 24pt horizontal padding applied outside the card (wraps the card)
 - Three equally-spaced tab buttons, each using `frame(maxWidth: .infinity)`.
-- Each button renders a system icon vertically stacked above a caption label (`buttonSmall` font style).
+- Each button renders a system icon vertically stacked above a caption label (`caption` font style).
 - No separator line.
 
 ---
@@ -85,7 +85,7 @@ The public-facing component.
 | ------------- | -------------- | ---------------------------------------------- |
 | `selectedTab` | `Binding<Int>` | Two-way binding to the active tab index (0–2)  |
 
-Renders an `HStack(spacing: 0)` of three `TabBarButton` instances at a fixed height, with a top divider applied as an `.overlay`.
+Renders an `HStack(spacing: 0)` of three `TabBarButton` instances at a fixed height.
 
 ---
 
@@ -137,12 +137,12 @@ CustomTabBar(selectedTab: $selectedTab)
 | ----------------------- | ------------------------------- | ---------------------------------------- |
 | Background              | `Color.white` (`cardBackground`) | Card background                         |
 | Corner radius           | `24 pt` (`radiusXLarge`)        | Card rounded corners                     |
-| Shadow                  | `shadowMedium`                  | Card elevation                           |
+| Shadow                  | `shadowSmall`                   | Card elevation                           |
 | Vertical padding        | `12 pt` (`spacing.small`)       | Internal card padding (top/bottom)       |
-| Horizontal padding      | `24 pt` (`spacing.large`)       | Internal card padding (leading/trailing) |
+| Horizontal padding      | `24 pt` (`spacing.large`)       | Outside the card (constrains card width) |
 | Selected foreground     | `Color.theme.primary`           | Icon + label when `isSelected`           |
 | Unselected foreground   | `Color.theme.textSecondary`     | Icon + label when not selected           |
-| Label font              | `Font.theme.buttonSmall`        | Tab label `Text` (15pt SemiBold)         |
+| Label font              | `Font.theme.caption`            | Tab label `Text`                         |
 | Icon-to-label spacing   | `.spacing.xxSmall` (4pt)        | `VStack(spacing:)` inside each button    |
 
 ---

@@ -98,8 +98,7 @@ Result stored as `[Date: Int]` for O(1) lookup per day cell.
 ```
 WeekCalendarView (@Observable CalendarViewModel)
   +-- WeekStripView
-  |     +-- DayCell (x7)
-  +-- Selected date label
+        +-- DayCell (x7)
 ```
 
 ---
@@ -128,7 +127,7 @@ An `@Observable` class created as `@State` in `HomeView` and passed to `WeekCale
 
 Root view for the calendar strip. Takes `CalendarViewModel` directly (passed from `HomeView`).
 
-- Renders `WeekStripView` and the selected date label.
+- Renders `WeekStripView`.
 - Has no knowledge of habits or `HabitViewModel`.
 
 ---
@@ -196,15 +195,18 @@ All Supabase calls use `async/await` and are dispatched from `Task { }` blocks. 
 
 ### On View Appear
 
-`HomeView` kicks off both the calendar and habit fetches in parallel:
+`HomeView` kicks off the calendar fetch on appear with a plain `.task`, and the habit fetch via a separate `.task(id:)` keyed on the selected date (which also fires on appear):
 
 ```swift
 // In HomeView
 .task {
-    async let calendar: () = calendarViewModel.loadWeekCompletionCounts()
-    async let habits: () = habitViewModel.loadData(for: calendarViewModel.selectedDate)
-    await calendar
-    await habits
+    await calendarViewModel.loadWeekCompletionCounts()
+}
+.task(id: calendarViewModel.selectedDate) {
+    habitViewModel.onToggleComplete = {
+        Task { await calendarViewModel.loadWeekCompletionCounts() }
+    }
+    await habitViewModel.loadData(for: calendarViewModel.selectedDate)
 }
 ```
 

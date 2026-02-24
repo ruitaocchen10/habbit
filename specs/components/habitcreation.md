@@ -34,7 +34,7 @@ TemplateLibraryView           (browse & manage all templates)
   └── Create Template Button      (opens TemplateFormView)
 
 TemplateFormView              (create or edit a single template)
-  └── Form fields: name, description, icon, color, active toggle
+  └── Form fields: name, description, active toggle
 ```
 
 **Navigation**: Template Library is accessible via the **CustomTabBar** (index 1, `list.bullet` icon, "Templates" label). This is Option A and is the implemented approach.
@@ -53,25 +53,25 @@ TemplateFormView              (create or edit a single template)
 │  ACTIVE (3)                         │  <- Section header
 │  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ │
 │                                     │
-│  💧  Drink Water                    │  <- TemplateRow
-│      Stay hydrated              [•] │     (active toggle on)
+│  Drink Water                        │  <- TemplateRow
+│  Stay hydrated                  [•] │     (active toggle on)
 │                                     │
-│  🏃  Morning Run                    │
-│      30 min cardio              [•] │
+│  Morning Run                        │
+│  30 min cardio                  [•] │
 │                                     │
-│  📖  Read 30 min                    │
-│      Daily reading              [•] │
+│  Read 30 min                        │
+│  Daily reading                  [•] │
 │                                     │
 │  INACTIVE (5)                       │  <- Section header
 │  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ │
 │                                     │
-│  🧘  Meditation                     │
-│      10 min mindfulness         [ ] │
+│  Meditation                         │
+│  10 min mindfulness             [ ] │
 │                                     │
-│  🎸  Guitar Practice                │
-│      Learn new chords           [ ] │
+│  Guitar Practice                    │
+│  Learn new chords               [ ] │
 │                                     │
-│  📝  Journal                        │
+│  Journal                            │
 │                                     │
 │  ...                                │
 │                                     │
@@ -88,29 +88,19 @@ TemplateFormView              (create or edit a single template)
 │  < Cancel    New Habit        Save  │  <- Navigation bar
 ├─────────────────────────────────────┤
 │                                     │
-│  Habit Name *                       │
+│  NAME *                             │
 │  ┌───────────────────────────────┐ │
 │  │ Morning Run                   │ │
 │  └───────────────────────────────┘ │
 │                                     │
-│  Description                        │
+│  DESCRIPTION                        │
 │  ┌───────────────────────────────┐ │
 │  │ 30 min cardio around the park │ │
 │  └───────────────────────────────┘ │
 │                                     │
-│  Icon                               │
-│  🏃  (Tap to choose from SF Symbols)│
-│                                     │
-│  Color                              │
-│  🔴 🟡 🟢 🔵 🟣 🩷 🟠 🩵 (8 swatches)│
-│                                     │
-│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ │
-│                                     │
 │  Active                        [•]  │  <- Toggle
 │  When active, this habit appears    │
 │  in your daily list                 │
-│                                     │
-│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ │
 │                                     │
 │  (Delete Template button if editing)│
 └─────────────────────────────────────┘
@@ -137,11 +127,9 @@ TemplateFormView              (create or edit a single template)
 | --------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | Type in "Habit Name" field  | Updates local state; required field (Save button disabled if empty)                                           |
 | Type in "Description" field | Updates local state; optional                                                                                 |
-| Tap icon picker             | Opens icon selection sheet (grid of SF Symbols); updates template icon                                        |
-| Tap color swatch            | Selects color; updates template color                                                                         |
 | Toggle "Active" switch      | Sets whether the template is active on creation/update; if toggled on, sets `activated_at = Date()`           |
 | Tap "Save"                  | Validates form, inserts/updates template in Supabase, dismisses form, refreshes TemplateLibraryView           |
-| Tap "Cancel"                | Dismisses form without saving; prompts confirmation if changes were made                                      |
+| Tap "Cancel"                | Dismisses form without saving (no confirmation prompt)                                                        |
 | Tap "Delete Template"       | Shows confirmation alert; deletes template and all associated completions (or soft-delete with cascade rules) |
 
 ---
@@ -172,9 +160,9 @@ Result: Array of `HabitTemplate` objects, grouped in UI by `is_active`.
 
 ```sql
 INSERT INTO habit_templates (
-  user_id, name, description, icon, color, is_active, activated_at
+  user_id, name, description, is_active, activated_at
 ) VALUES (
-  :userId, :name, :description, :icon, :color, :isActive, :activatedAt
+  :userId, :name, :description, :isActive, :activatedAt
 )
 RETURNING *
 ```
@@ -187,8 +175,6 @@ If `isActive = true`, `activatedAt = now()`. Otherwise, `activatedAt = null`.
 UPDATE habit_templates
 SET name = :name,
     description = :description,
-    icon = :icon,
-    color = :color,
     is_active = :isActive,
     activated_at = :activatedAt,
     updated_at = now()
@@ -229,8 +215,6 @@ TemplateLibraryView (@Observable TemplateViewModel)
 TemplateFormView (@Observable TemplateFormViewModel)
   +-- TextField (name)
   +-- TextField (description)
-  +-- IconPicker
-  +-- ColorPicker
   +-- Toggle (is_active)
   +-- DeleteButton (edit mode only)
 ```
@@ -270,13 +254,13 @@ An `@Observable` class managing the state of the template creation/edit form.
 | ----------------- | ------------------ | -------------------------------------------------------------- |
 | `name`            | `String`           | Template name (required)                                       |
 | `description`     | `String`           | Template description (optional)                                |
-| `icon`            | `String`           | SF Symbol name (default: `"figure.run"`)                       |
-| `color`           | `String`           | Hex color string (default: first preset color)                 |
 | `isActive`        | `Bool`             | Whether template is active on save                             |
 | `isSaving`        | `Bool`             | `true` while save operation is in progress                     |
 | `errorMessage`    | `String?`          | Non-nil when validation or save fails                          |
 | `templateViewModel` | `TemplateViewModel?` | Reference to parent view model for CRUD operations          |
 | `editingTemplate` | `HabitTemplate?`   | The existing template being edited; `nil` in create mode       |
+
+**Note**: `icon` and `color` are planned properties — not yet implemented.
 
 | Computed Property | Type   | Purpose                                        |
 | ----------------- | ------ | ---------------------------------------------- |
@@ -297,10 +281,12 @@ An `@Observable` class managing the state of the template creation/edit form.
 
 Root view for browsing and managing all habit templates.
 
-- Displays two sections: **Active** and **Inactive**, each containing a list of `TemplateRow` views.
+- Uses a custom `HStack` header (title + `plus.circle` button) rather than a `NavigationStack` toolbar.
+- Displays two sections: **Active** and **Inactive** via `List` with `insetGrouped` style, each containing `TemplateRow` views. Sections are hidden when empty (no placeholder message per empty section).
 - Shows `ProgressView` when `isLoading == true`.
-- Shows empty state when `templates.isEmpty && !isLoading`.
-- Toolbar contains a "+" button to create a new template (opens `TemplateFormView` in a sheet).
+- Shows full empty state (with a "Create Template" button) when `templates.isEmpty && !isLoading`.
+- The "+" button in the header opens `TemplateFormView` in a sheet (create mode).
+- Supports pull-to-refresh.
 
 ---
 
@@ -310,11 +296,12 @@ A single row in the template list.
 
 | Element       | Notes                                                                                         |
 | ------------- | --------------------------------------------------------------------------------------------- |
-| Icon          | SF Symbol from `template.icon`, tinted with `template.color`                                  |
-| Name          | `Text(template.name)`, primary font                                                           |
-| Description   | `Text(template.description ?? "")`, secondary font, truncated to 1 line                       |
+| Name          | `Text(template.name)`, primary font, medium weight                                            |
+| Description   | `Text(template.description ?? "")`, caption font, secondary color, truncated to 1 line        |
 | Active Toggle | `Toggle` bound to `template.isActive`; calls `templateViewModel.toggleActive(for:)` on change |
-| Swipe Actions | Edit (opens form), Delete (shows confirmation)                                                |
+| Swipe Actions | Edit (opens form), Delete (shows confirmation alert)                                          |
+
+**Note**: Icon and color are planned fields — not yet in the `HabitTemplate` model or rendered in `TemplateRow`.
 
 ---
 
@@ -328,48 +315,10 @@ Sheet or navigation-pushed view for creating or editing a template.
 - **Form fields**:
   - `TextField` for name (required)
   - `TextField` for description (optional, multiline)
-  - Icon picker: inline `LazyVGrid` (4 columns) of 16 preset SF Symbol icons; selected icon highlighted
-  - Color picker: inline `LazyVGrid` of 8 preset hex color swatches; selected color highlighted
   - `Toggle` for "Active" with explanatory subtext
-- **Delete button** (edit mode only): Red destructive button at bottom of form.
+- **Delete button** (edit mode only): Destructive button at bottom of form (shown via swipe action and in the form itself).
 
----
-
-### `IconPickerView`
-
-Implemented as an inline `LazyVGrid` (4 columns) directly within `TemplateFormView` — no separate sheet.
-
-**Preset icons** (16 SF Symbol names):
-
-| | | | |
-|-|-|-|-|
-| `figure.run` | `heart.fill` | `book.fill` | `bed.double.fill` |
-| `cup.and.saucer.fill` | `dumbbell.fill` | `leaf.fill` | `brain.fill` |
-| `pencil` | `music.note` | `paintbrush.fill` | `camera.fill` |
-| `fork.knife` | `drop.fill` | `pills.fill` | `bicycle` |
-
-Tapping an icon selects it (highlighted with `primary` color background). Selected icon reflected immediately in the form preview.
-
----
-
-### Color Picker (Inline)
-
-Implemented as an inline `LazyVGrid` (4 columns) of 8 preset color swatches within `TemplateFormView`.
-
-**Preset colors** (hex strings):
-
-| Color | Hex |
-|-------|-----|
-| Red-Orange | `#FF5733` |
-| Amber | `#FFC300` |
-| Green | `#28B463` |
-| Blue | `#2E86C1` |
-| Purple | `#8E44AD` |
-| Pink | `#E91E8C` |
-| Orange | `#FF8C00` |
-| Teal | `#00897B` |
-
-Tapping a swatch selects it (highlighted with a border or check). Selected color is stored as a hex string on the template.
+**Note**: Icon and color pickers are planned features — not yet implemented. See Future Enhancements.
 
 ---
 
@@ -384,11 +333,12 @@ Tapping a swatch selects it (highlighted with a border or check). Selected color
 @State private var viewModel = TemplateViewModel()
 
 var body: some View {
-    NavigationStack {
-        TemplateListContent(viewModel: viewModel)
-            .task {
-                await viewModel.loadTemplates()
-            }
+    VStack {
+        // custom header HStack ...
+        templateList  // List with insetGrouped style
+    }
+    .task {
+        await viewModel.loadTemplates()
     }
 }
 ```
@@ -447,8 +397,6 @@ func createTemplate(_ template: HabitTemplate) async {
             "user_id": userId.uuidString,
             "name": template.name,
             "description": template.description ?? "",
-            "icon": template.icon ?? "",
-            "color": template.color ?? "",
             "is_active": template.isActive,
             "activated_at": template.isActive ? Date().isoDateString : nil
         ]
@@ -473,8 +421,6 @@ func updateTemplate(_ template: HabitTemplate) async {
         var data: [String: Any] = [
             "name": template.name,
             "description": template.description ?? "",
-            "icon": template.icon ?? "",
-            "color": template.color ?? "",
             "is_active": template.isActive,
             "updated_at": Date().isoDateString
         ]
@@ -549,14 +495,12 @@ func deleteTemplate(_ template: HabitTemplate) async {
 
 ### Flow 1: Creating a New Habit Template
 
-1. User opens `TemplateLibraryView` (from tab bar or modal).
-2. Taps "+" button in toolbar.
+1. User opens `TemplateLibraryView` (from tab bar).
+2. Taps "+" button in the header.
 3. `TemplateFormView` opens in a sheet (create mode).
 4. User fills in:
    - **Name**: "Morning Run" (required)
    - **Description**: "30 min cardio" (optional)
-   - **Icon**: Selects 🏃 from icon picker
-   - **Color**: Selects orange
    - **Active toggle**: OFF (will activate later)
 5. Taps "Save".
 6. `TemplateFormViewModel.save()` validates and calls `TemplateViewModel.createTemplate()`.
@@ -599,7 +543,7 @@ func deleteTemplate(_ template: HabitTemplate) async {
 
 1. User taps on "Morning Run" row in **Inactive** section.
 2. `TemplateFormView` opens in edit mode, fields pre-filled.
-3. User changes description to "45 min cardio" and icon to 🏃‍♀️.
+3. User changes description to "45 min cardio".
 4. Taps "Save".
 5. `TemplateFormViewModel.save()` calls `TemplateViewModel.updateTemplate()`.
 6. Template updated in database.
@@ -646,15 +590,15 @@ func deleteTemplate(_ template: HabitTemplate) async {
 | Case                                           | Handling                                                                                               |
 | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
 | No templates exist                             | Empty state: "No habit templates yet. Tap + to create your first one."                                 |
-| All templates are active                       | "Inactive" section shows: "No inactive templates."                                                     |
-| All templates are inactive                     | "Active" section shows: "No active templates. Toggle a template to activate it."                       |
+| All templates are active                       | Inactive section is hidden entirely (not rendered)                                                     |
+| All templates are inactive                     | Active section is hidden entirely (not rendered)                                                       |
 | Name field is empty on save                    | "Save" button disabled; red underline on field; hint: "Name is required"                               |
 | Network error on create / update / delete      | `errorMessage` shown as alert or inline banner; changes not saved                                      |
 | User tries to delete template with completions | Confirmation alert warns: "This will delete X completions. Continue?"                                  |
 | User edits active template                     | Changes apply immediately; daily habit list reflects updated name/icon/color on next reload            |
 | User activates template in the past            | `activated_at` is set to today; template appears in daily lists from today forward (not retroactively) |
 | User creates duplicate template names          | Allowed (no unique constraint on name); user can create multiple "Meditate" templates if desired       |
-| User cancels form with unsaved changes         | Confirmation alert: "Discard changes?" (only if form is dirty)                                         |
+| User cancels form with unsaved changes         | Form dismisses immediately — no confirmation alert (changes are discarded silently)                    |
 | Swipe action conflicts with scroll             | Standard iOS swipe gesture handling; vertical scroll takes precedence over incomplete swipe            |
 | Database cascade delete fails                  | Handle in transaction; if cascade doesn't work, manually delete completions first                      |
 
@@ -662,6 +606,7 @@ func deleteTemplate(_ template: HabitTemplate) async {
 
 ## Future Enhancements
 
+- **Icon & Color**: Add `icon` (SF Symbol name) and `color` (hex string) fields to `HabitTemplate` model; add inline icon picker (16 preset SF Symbols) and color picker (8 preset hex swatches) to `TemplateFormView`; render icon tinted with color in `TemplateRow` and `HabitRowView`
 - **Template Categories**: Group templates by type (Health, Productivity, Wellness, etc.)
 - **Template Sharing**: Share template definitions with friends (without completions)
 - **Template Scheduling**: Set specific days of the week for a template (e.g., "Gym" only Mon/Wed/Fri)

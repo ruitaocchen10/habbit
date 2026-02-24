@@ -44,7 +44,7 @@ HomeView
 - Each row is a white card with shadow containing:
   - Habit name (left-aligned, `body` style).
   - Completion checkbox (right-aligned, 24pt SF Symbol) — `checkmark.circle.fill` when completed, `circle` when not.
-- **Note**: Habit icon (`habit_templates.icon`) and color are stored on the template but are not currently rendered in `HabitRowView`. This is a planned enhancement.
+- **Note**: Habit icon and color are planned fields — not yet present in the `HabitTemplate` model or rendered in `HabitRowView`. See `habitcreation.md` → Future Enhancements.
 - A `ProgressView` is shown while data is loading.
 - An empty-state message is shown when there are no active habits for the date.
 
@@ -128,7 +128,7 @@ An `@Observable` class created as `@State` in `HomeView` and passed to `DailyHab
 
 Root view for the habit list. Takes `HabitViewModel` directly (passed from `HomeView`).
 
-- Renders a `ScrollView` + `LazyVStack` of `HabitRowView` items.
+- Renders a `VStack` + `LazyVStack` of `HabitRowView` items (the outer `ScrollView` is owned by `HomeView`).
 - Shows a `ProgressView` when `isLoading == true`.
 - Shows an empty-state message when `activeTemplates.isEmpty && !isLoading`.
 - Has no knowledge of week navigation or `CalendarViewModel`.
@@ -144,13 +144,12 @@ A single row in the habit list. Implemented as a white card with shadow.
 | Habit name      | `Text(template.name)`, left-aligned, `body` style, `textPrimary` color                                             |
 | Checkbox button | `circle` (unchecked) / `checkmark.circle.fill` (checked), 24pt; right-aligned; disabled when `isFutureDate == true` |
 
-**Note**: Habit icon and color fields are not currently rendered in `HabitRowView`.
+**Note**: Habit icon and color are planned features — not yet in the model or rendered.
 
 **Constants**:
 
 | Constant | Value | Purpose |
 | -------- | ----- | ------- |
-| `iconSize` | 24pt | Icon SF Symbol size |
 | `checkboxSize` | 24pt | Checkbox SF Symbol size |
 | `rowHeight` | 64pt | Row card height |
 | `scaleAnimationAmount` | 1.2 | Checkbox scale peak on tap |
@@ -257,7 +256,7 @@ func toggleCompletion(for template: HabitTemplate, on date: Date) {
 
 | Case                                  | Handling                                                                                 |
 | ------------------------------------- | ---------------------------------------------------------------------------------------- |
-| No active habits for the selected day | Empty state: "No habits for this day. Add habits in Settings."                           |
+| No active habits for the selected day | Empty state: "No habits for this day" with subtext "Tap the checklist icon to manage your habit templates." |
 | Future date selected                  | Habit list is visible but checkboxes are disabled; label: "Can't complete future habits" |
 | Network error on load                 | `errorMessage` shown; retry button calls `loadData(for:)`                                |
 | Network error on toggle               | Optimistic update reverted; `errorMessage` shown                                         |
