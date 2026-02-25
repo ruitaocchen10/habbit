@@ -19,11 +19,17 @@ class CalendarViewModel {
     // MARK: - Computed Properties
 
     var visibleWeek: [Date] {
+        week(atOffset: weekOffset)
+    }
+
+    // MARK: - Week Generation
+
+    func week(atOffset offset: Int) -> [Date] {
         let calendar = Calendar.current
         let today = Date()
 
         // Get the start of the week for today (Monday)
-        guard let weekStart = calendar.dateInterval(of: .weekOfYear, for: today)?.start else {
+        guard calendar.dateInterval(of: .weekOfYear, for: today) != nil else {
             return []
         }
 
@@ -35,7 +41,7 @@ class CalendarViewModel {
         }
 
         // Apply week offset
-        guard let offsetMonday = calendar.date(byAdding: .weekOfYear, value: weekOffset, to: thisMonday) else {
+        guard let offsetMonday = calendar.date(byAdding: .weekOfYear, value: offset, to: thisMonday) else {
             return []
         }
 

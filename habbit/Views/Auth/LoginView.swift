@@ -20,14 +20,13 @@ struct LoginView: View {
     // MARK: - Body
 
     var body: some View {
-        VStack(spacing: .spacing.xLarge) {
+        VStack(spacing: .spacing.medium) {
             Spacer()
 
+            HabbitLogoView(size: Constants.brandIconSize)
+
             // App branding
-            VStack(spacing: .spacing.small) {
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: Constants.brandIconSize))
-                    .foregroundStyle(Color.theme.primary)
+            VStack(spacing: .spacing.xxSmall) {
 
                 Text("Habbit")
                     .font(.theme.largeTitle)
@@ -87,9 +86,9 @@ private struct OAuthButton: View {
             }
             .foregroundStyle(Color.theme.textPrimary)
             .frame(maxWidth: .infinity)
-            .padding(.vertical, .spacing.small)
-            .padding(.horizontal, .spacing.medium)
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: .radius.medium))
+            .padding(.theme.button)
+            .background(Color.theme.cardBackground, in: RoundedRectangle.theme.medium())
+            .shadowSmall()
         }
         .buttonStyle(.plain)
     }

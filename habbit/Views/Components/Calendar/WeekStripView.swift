@@ -10,24 +10,55 @@ import SwiftUI
 struct WeekStripView: View {
     @Bindable var viewModel: CalendarViewModel
 
-    @State private var dragOffset: CGFloat = 0
+    @State private var selectedPage: Int = 1
 
     // MARK: - Design Tokens
 
     private enum Constants {
-        static let dragMultiplier: CGFloat = 0.3
-        static let swipeThreshold: CGFloat = 50
-        static let animationDuration: CGFloat = 0.2
-        static let minimumDragDistance: CGFloat = 20
+        // day-names (~16) + xxSmall spacing (4) + cell height (48) + xSmall padding * 2 (16)
+        static let stripHeight: CGFloat = 84
     }
 
     // MARK: - Body
 
     var body: some View {
+        TabView(selection: $selectedPage) {
+            weekPage(forOffset: viewModel.weekOffset - 1)
+                .tag(0)
+            weekPage(forOffset: viewModel.weekOffset)
+                .tag(1)
+            weekPage(forOffset: viewModel.weekOffset + 1)
+                .tag(2)
+        }
+        .tabViewStyle(.page(indexDisplayMode: .never))
+        .frame(height: Constants.stripHeight)
+        .sensoryFeedback(.selection, trigger: viewModel.weekOffset)
+        .onChange(of: selectedPage) { _, newPage in
+            guard newPage != 1 else { return }
+            if newPage == 0 {
+                viewModel.goToPreviousWeek()
+            } else {
+                viewModel.goToNextWeek()
+            }
+            // Snap back to the middle page with no animation.
+            // By the time this runs, weekOffset has already updated, so
+            // page 1 now displays the same week the user swiped to —
+            // making the reset invisible.
+            withAnimation(.none) {
+                selectedPage = 1
+            }
+        }
+    }
+
+    // MARK: - Week Page
+
+    @ViewBuilder
+    private func weekPage(forOffset offset: Int) -> some View {
+        let days = viewModel.week(atOffset: offset)
         VStack(spacing: .spacing.xxSmall) {
             // Day names row (M, T, W, etc.)
             HStack(spacing: 0) {
-                ForEach(viewModel.visibleWeek, id: \.self) { date in
+                ForEach(days, id: \.self) { date in
                     Text(dayName(for: date))
                         .font(.theme.caption)
                         .fontWeight(.medium)
@@ -38,7 +69,7 @@ struct WeekStripView: View {
 
             // Day numbers row
             HStack(spacing: .spacing.xxSmall) {
-                ForEach(viewModel.visibleWeek, id: \.self) { date in
+                ForEach(days, id: \.self) { date in
                     DayCell(
                         date: date,
                         isSelected: isSelected(date),
@@ -50,26 +81,6 @@ struct WeekStripView: View {
                     )
                 }
             }
-            .offset(x: dragOffset)
-            .gesture(
-                DragGesture(minimumDistance: Constants.minimumDragDistance)
-                    .onChanged { gesture in
-                        dragOffset = gesture.translation.width * Constants.dragMultiplier
-                    }
-                    .onEnded { gesture in
-                        if gesture.translation.width < -Constants.swipeThreshold {
-                            // Swipe left -> next week
-                            viewModel.goToNextWeek()
-                        } else if gesture.translation.width > Constants.swipeThreshold {
-                            // Swipe right -> previous week
-                            viewModel.goToPreviousWeek()
-                        }
-                        withAnimation(.easeInOut(duration: Constants.animationDuration)) {
-                            dragOffset = 0
-                        }
-                    }
-            )
-            .animation(.easeInOut, value: viewModel.weekOffset)
         }
         .padding(.spacing.xSmall)
     }

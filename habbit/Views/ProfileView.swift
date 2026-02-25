@@ -13,6 +13,7 @@ struct ProfileView: View {
     @Binding var selectedTab: Int
 
     @State private var profileVM = ProfileViewModel()
+    @State private var showSignOutAlert = false
 
     // MARK: - Design Tokens
 
@@ -130,7 +131,7 @@ struct ProfileView: View {
 
                         // Sign Out Button
                         Button {
-                            Task { await authManager.signOut() }
+                            showSignOutAlert = true
                         } label: {
                             Text("Sign Out")
                                 .font(.theme.body)
@@ -143,6 +144,14 @@ struct ProfileView: View {
                         }
                         .padding(.horizontal)
                         .padding(.top, .spacing.medium)
+                        .alert("Sign Out", isPresented: $showSignOutAlert) {
+                            Button("Sign Out", role: .destructive) {
+                                Task { await authManager.signOut() }
+                            }
+                            Button("Cancel", role: .cancel) {}
+                        } message: {
+                            Text("Are you sure you want to sign out?")
+                        }
 
                         Spacer()
                     }
@@ -152,8 +161,6 @@ struct ProfileView: View {
                 CustomTabBar(selectedTab: $selectedTab)
             }
             .background(Color.theme.background)
-            .navigationTitle("Profile")
-            .navigationBarTitleDisplayMode(.inline)
             .task {
                 await profileVM.loadStats()
             }

@@ -70,51 +70,49 @@ struct DailyHabitView: View {
     }
 
     private var loadingView: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: .spacing.xSmall) {
             ProgressView()
-                .tint(.accentColor)
+                .tint(.theme.primary)
             Text("Loading habits...")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                .font(.theme.caption)
+                .foregroundStyle(.theme.textSecondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(20)
+        .padding(.spacing.large)
     }
 
     private var emptyStateView: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: .spacing.xSmall) {
             Image(systemName: "checkmark.circle")
                 .font(.system(size: 48))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.theme.textTertiary)
 
             Text("No habits for this day")
-                .font(.body)
-                .fontWeight(.medium)
-                .foregroundStyle(.primary)
+                .font(.theme.bodyEmphasized)
+                .foregroundStyle(.theme.textPrimary)
 
             Text("Tap the checklist icon to manage your habit templates.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                .font(.theme.caption)
+                .foregroundStyle(.theme.textSecondary)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(20)
+        .padding(.spacing.large)
     }
 
     private func errorView(message: String) -> some View {
-        VStack(spacing: 12) {
+        VStack(spacing: .spacing.small) {
             Image(systemName: "exclamationmark.triangle")
                 .font(.system(size: 48))
                 .foregroundStyle(.theme.error)
 
             Text("Something went wrong")
-                .font(.body)
-                .fontWeight(.medium)
-                .foregroundStyle(.primary)
+                .font(.theme.bodyEmphasized)
+                .foregroundStyle(.theme.textPrimary)
 
             Text(message)
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                .font(.theme.caption)
+                .foregroundStyle(.theme.textSecondary)
                 .multilineTextAlignment(.center)
 
             Button("Retry") {
@@ -123,10 +121,10 @@ struct DailyHabitView: View {
                 }
             }
             .buttonStyle(.bordered)
-            .tint(.accentColor)
+            .tint(.theme.primary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .padding(20)
+        .padding(.spacing.large)
     }
 
 }

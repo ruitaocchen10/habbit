@@ -25,6 +25,14 @@ struct HomeView: View {
         }
     }
 
+    private var avatarURL: URL? {
+        if let metadata = authManager.session?.user.userMetadata,
+           case let .string(urlString) = metadata["avatar_url"] {
+            return URL(string: urlString)
+        }
+        return nil
+    }
+
     private var displayName: String {
         if let metadata = authManager.session?.user.userMetadata,
            let nameValue = metadata["full_name"],
@@ -55,10 +63,27 @@ struct HomeView: View {
 
                     Spacer()
 
-                    // Avatar placeholder
-                    Circle()
-                        .fill(Color.theme.backgroundTertiary)
-                        .frame(width: 44, height: 44)
+                    // Avatar
+                    Group {
+                        if let url = avatarURL {
+                            AsyncImage(url: url) { image in
+                                image
+                                    .resizable()
+                                    .scaledToFill()
+                            } placeholder: {
+                                Image(systemName: "person.circle.fill")
+                                    .resizable()
+                                    .foregroundStyle(Color.theme.textSecondary)
+                            }
+                            .frame(width: 44, height: 44)
+                            .clipShape(Circle())
+                        } else {
+                            Image(systemName: "person.circle.fill")
+                                .resizable()
+                                .foregroundStyle(Color.theme.textSecondary)
+                                .frame(width: 44, height: 44)
+                        }
+                    }
                 }
                 .padding(.horizontal, .spacing.medium)
                 .padding(.top, .spacing.medium)
