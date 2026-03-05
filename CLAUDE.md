@@ -2,7 +2,7 @@
 
 ## Project Description
 
-Habbit is a social habit tracking iOS app that helps users maintain long-term habits with community support.
+Viably is a social habit tracking iOS app that helps users maintain long-term habits with community support.
 
 **Core Features**:
 
@@ -11,29 +11,13 @@ Habbit is a social habit tracking iOS app that helps users maintain long-term ha
 - **Profile & Stats**: User profiles display streaks, completion counts, and a GitHub-style heatmap calendar where color intensity reflects daily task completion.
 - **Habit Templates**: Users create reusable habit templates and activate them to make those habits appear daily until the template is deactivated.
 
-## Bash Commands for Building and Testing
-
-```bash
-# Build for debug
-xcodebuild -project habbit.xcodeproj -scheme habbit -configuration Debug build
-
-# Build for release
-xcodebuild -project habbit.xcodeproj -scheme habbit -configuration Release build
-
-# Clean build folder
-xcodebuild -project habbit.xcodeproj -scheme habbit clean
-
-# Run on simulator
-xcodebuild -project habbit.xcodeproj -scheme habbit -destination 'platform=iOS Simulator,name=iPhone 16 Pro' build
-```
-
 ## Tech Stack and Architecture
 
 **Technical Details**:
 
 - **Framework**: SwiftUI with Swift 5.0
 - **Target**: iOS 26.2, iPhone and iPad (universal)
-- **Bundle ID**: com.ruitaochen.habbit
+- **Bundle ID**: com.ruitaochen.viably
 - **Development Team**: NS8CC9Z25V
 - **Backend**: Supabase (PostgreSQL database, Auth, Realtime, Storage)
 

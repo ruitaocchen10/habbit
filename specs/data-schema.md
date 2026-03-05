@@ -1,4 +1,4 @@
-# Habbit Supabase Data Schema
+# Viably Supabase Data Schema
 
 ## Table of Contents
 

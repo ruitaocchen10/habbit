@@ -1,0 +1,30 @@
+//
+//  ContentView.swift
+//  viably
+//
+//  Created by Ruitao Chen on 2/16/26.
+//
+//  Root view - uses theme tokens from design system
+//
+
+import SwiftUI
+
+struct ContentView: View {
+    @Environment(AuthManager.self) private var authManager
+
+    var body: some View {
+        if authManager.isLoading {
+            ProgressView()
+                .tint(.theme.primary)
+        } else if authManager.isAuthenticated {
+            MainTabView()
+        } else {
+            LoginView()
+        }
+    }
+}
+
+#Preview {
+    ContentView()
+        .environment(AuthManager())
+}
